@@ -1,0 +1,1615 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Score Config Viewer</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --panel-strong: #eef3f6;
+      --text: #1f2933;
+      --muted: #657386;
+      --line: #d8e0e8;
+      --line-strong: #b7c4d0;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --blue: #2563eb;
+      --orange: #c2410c;
+      --red: #b91c1c;
+      --green-soft: #dff5f1;
+      --blue-soft: #e8efff;
+      --orange-soft: #fff1e8;
+      --shadow: 0 12px 30px rgba(24, 36, 48, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .toolbar select,
+    .toolbar button,
+    .file-button {
+      min-height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 12px;
+      max-width: 280px;
+    }
+
+    .toolbar button,
+    .file-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .toolbar button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .file-button input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .side-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(120px, 1fr) auto auto;
+      overflow: hidden;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head h2,
+    .section-head h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .section-head small {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .file-list {
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .file-row {
+      width: 100%;
+      display: grid;
+      gap: 4px;
+      padding: 10px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .file-row:hover,
+    .file-row.active {
+      border-color: var(--line-strong);
+      background: var(--panel-strong);
+    }
+
+    .file-row strong {
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .file-row span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .scope-box,
+    .formula-box {
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .scope-box h3,
+    .formula-box h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .chip.industry {
+      background: var(--orange-soft);
+      color: #9a3412;
+    }
+
+    .chip.fallback {
+      background: var(--green-soft);
+      color: var(--accent-dark);
+    }
+
+    .formula {
+      display: block;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f7fafc;
+      border: 1px solid var(--line);
+      color: #334155;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: normal;
+    }
+
+    .content {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      gap: 16px;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(130px, 1fr));
+      gap: 1px;
+      overflow: hidden;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 14px 16px;
+      background: var(--panel);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .workbench {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(260px, 350px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .metric-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .filter-input {
+      width: 150px;
+      min-height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 6px 9px;
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .metric-list {
+      min-height: 0;
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .metric-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      text-align: left;
+      color: var(--text);
+    }
+
+    .metric-row:hover,
+    .metric-row.active {
+      border-color: var(--line-strong);
+      background: #f7fafc;
+    }
+
+    .metric-row.active {
+      border-left: 4px solid var(--accent);
+      padding-left: 7px;
+    }
+
+    .metric-row strong {
+      display: block;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .weight-track {
+      height: 7px;
+      border-radius: 999px;
+      background: #e6edf3;
+      overflow: hidden;
+    }
+
+    .weight-track span {
+      display: block;
+      height: 100%;
+      width: 0;
+      min-width: 2px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+    }
+
+    .chart-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(320px, 1fr) auto auto;
+      overflow: hidden;
+    }
+
+    .chart-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric-title h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .metric-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(70px, 1fr));
+      gap: 8px;
+      min-width: 270px;
+    }
+
+    .kpi {
+      padding: 9px 10px;
+      border-left: 3px solid var(--line-strong);
+      background: #f8fafc;
+      border-radius: 6px;
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .canvas-wrap {
+      min-height: 320px;
+      padding: 12px 16px 8px;
+      background: #ffffff;
+    }
+
+    #scoreChart {
+      width: 100%;
+      height: 100%;
+      min-height: 300px;
+      display: block;
+    }
+
+    .probe {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+    }
+
+    .probe label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .probe input {
+      width: 150px;
+      min-height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 6px 9px;
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .probe-result {
+      min-width: 0;
+      color: var(--text);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-grid {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: auto;
+    }
+
+    .detail-block {
+      min-width: 0;
+      padding: 14px 16px 16px;
+    }
+
+    .detail-block + .detail-block {
+      border-left: 1px solid var(--line);
+    }
+
+    .detail-block h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td.numeric,
+    th.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .rules-panel {
+      overflow: hidden;
+    }
+
+    .rules-panel .section-head {
+      border-bottom: 0;
+    }
+
+    .rules-table-wrap {
+      max-height: 360px;
+      overflow: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    .rules-table tr {
+      cursor: pointer;
+    }
+
+    .rules-table tr:hover td,
+    .rules-table tr.active td {
+      background: #f1f7f6;
+    }
+
+    .raw-panel {
+      overflow: hidden;
+    }
+
+    details {
+      padding: 0;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 14px 16px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--line);
+    }
+
+    pre {
+      margin: 0;
+      max-height: 380px;
+      overflow: auto;
+      padding: 16px;
+      background: #101820;
+      color: #d7e3ea;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .empty,
+    .error {
+      padding: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: var(--red);
+      background: #fff5f5;
+      border-top: 1px solid #fecaca;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1180px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        grid-template-rows: auto auto auto;
+      }
+
+      .file-list {
+        max-height: 180px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .overview {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+      }
+
+      .workbench {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-list {
+        max-height: 280px;
+      }
+
+      .chart-head {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-kpis {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+      }
+
+      .toolbar select,
+      .toolbar button,
+      .file-button {
+        width: 100%;
+        max-width: none;
+      }
+
+      .overview,
+      .detail-grid,
+      .metric-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-block + .detail-block {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .probe {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .probe label {
+        white-space: normal;
+      }
+
+      .probe input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Score Config Viewer</h1>
+        <p id="statusLine">Caricamento configurazioni...</p>
+      </div>
+      <div class="toolbar">
+        <select id="configSelect" aria-label="Configurazione"></select>
+        <button id="loadConfigButton" class="primary" type="button">Carica</button>
+        <label class="file-button">
+          Apri JSON
+          <input id="fileInput" type="file" accept=".json,application/json">
+        </label>
+      </div>
+    </header>
+
+    <main class="main">
+      <aside class="panel side-panel">
+        <div class="section-head">
+          <h2>Configurazioni</h2>
+          <small id="fileCount">0 file</small>
+        </div>
+        <div id="configList" class="file-list"></div>
+        <div class="scope-box">
+          <h3>Applicazione</h3>
+          <div id="scopeChips" class="chips"></div>
+        </div>
+        <div class="formula-box">
+          <h3>Formula</h3>
+          <code class="formula">fitness = clamp(media_pesata(score validi) - penalita_mancanti)</code>
+        </div>
+        <div id="errorBox" class="error hidden"></div>
+      </aside>
+
+      <section class="content">
+        <section id="overview" class="panel overview" aria-label="Riepilogo"></section>
+
+        <section class="workbench">
+          <section class="panel metric-panel">
+            <div class="section-head">
+              <h2>Metriche</h2>
+              <input id="metricFilter" class="filter-input" type="search" placeholder="Filtra" aria-label="Filtra metriche">
+            </div>
+            <div id="metricList" class="metric-list"></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="chart-head">
+              <div class="metric-title">
+                <h2 id="metricTitle">Nessuna metrica</h2>
+                <p id="metricDescription"></p>
+              </div>
+              <div class="metric-kpis">
+                <div class="kpi">
+                  <span>Peso</span>
+                  <strong id="kpiWeight">-</strong>
+                </div>
+                <div class="kpi">
+                  <span>Prefactor</span>
+                  <strong id="kpiPrefactor">-</strong>
+                </div>
+                <div class="kpi">
+                  <span>Penalty</span>
+                  <strong id="kpiPenalty">-</strong>
+                </div>
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="scoreChart"></canvas>
+            </div>
+            <div class="probe">
+              <label for="probeInput">Valore CSV
+                <input id="probeInput" type="number" step="any" inputmode="decimal">
+              </label>
+              <div id="probeResult" class="probe-result">Inserisci un valore per leggere lo score interpolato.</div>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-block">
+                <h3>Punti</h3>
+                <div id="pointsTable" class="table-wrap"></div>
+              </div>
+              <div class="detail-block">
+                <h3>Segmenti</h3>
+                <div id="segmentsTable" class="table-wrap"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel rules-panel">
+          <div class="section-head">
+            <h2>Tutte le regole</h2>
+            <small id="rulesCount"></small>
+          </div>
+          <div id="rulesTable" class="rules-table-wrap"></div>
+        </section>
+
+        <section class="panel raw-panel">
+          <details>
+            <summary>JSON originale</summary>
+            <pre id="rawJson"></pre>
+          </details>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const els = {
+      statusLine: document.getElementById("statusLine"),
+      configSelect: document.getElementById("configSelect"),
+      loadConfigButton: document.getElementById("loadConfigButton"),
+      fileInput: document.getElementById("fileInput"),
+      configList: document.getElementById("configList"),
+      fileCount: document.getElementById("fileCount"),
+      scopeChips: document.getElementById("scopeChips"),
+      errorBox: document.getElementById("errorBox"),
+      overview: document.getElementById("overview"),
+      metricFilter: document.getElementById("metricFilter"),
+      metricList: document.getElementById("metricList"),
+      metricTitle: document.getElementById("metricTitle"),
+      metricDescription: document.getElementById("metricDescription"),
+      kpiWeight: document.getElementById("kpiWeight"),
+      kpiPrefactor: document.getElementById("kpiPrefactor"),
+      kpiPenalty: document.getElementById("kpiPenalty"),
+      scoreChart: document.getElementById("scoreChart"),
+      probeInput: document.getElementById("probeInput"),
+      probeResult: document.getElementById("probeResult"),
+      pointsTable: document.getElementById("pointsTable"),
+      segmentsTable: document.getElementById("segmentsTable"),
+      rulesCount: document.getElementById("rulesCount"),
+      rulesTable: document.getElementById("rulesTable"),
+      rawJson: document.getElementById("rawJson"),
+    };
+
+    const state = {
+      configFiles: [],
+      rawPayload: null,
+      config: null,
+      currentName: "",
+      selectedIndex: 0,
+      probeValue: "",
+    };
+
+    const numberFormat = new Intl.NumberFormat("it-IT", {
+      maximumFractionDigits: 4,
+    });
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatNumber(value, digits = 4) {
+      if (!Number.isFinite(value)) {
+        return "-";
+      }
+      return new Intl.NumberFormat("it-IT", {
+        maximumFractionDigits: digits,
+      }).format(value);
+    }
+
+    function readNumber(value, label) {
+      const number = typeof value === "number" ? value : Number(String(value ?? "").trim());
+      if (!Number.isFinite(number)) {
+        throw new Error(`${label} non numerico`);
+      }
+      return number;
+    }
+
+    function clampScore(value) {
+      return Math.min(10, Math.max(0, value));
+    }
+
+    function parseConfig(payload, sourceName) {
+      let sectors = [];
+      let industries = [];
+      let scores = [];
+
+      if (Array.isArray(payload)) {
+        sectors = [""];
+        scores = payload;
+      } else if (payload && typeof payload === "object") {
+        sectors = Array.isArray(payload.sectors) ? payload.sectors.map((item) => String(item ?? "").trim()) : [];
+        industries = Array.isArray(payload.industries) ? payload.industries.map((item) => String(item ?? "").trim()) : [];
+        scores = payload.scores;
+      } else {
+        throw new Error("Struttura JSON non supportata");
+      }
+
+      if (!Array.isArray(scores) || scores.length === 0) {
+        throw new Error("Il campo scores deve contenere almeno una regola");
+      }
+
+      const rules = scores.map((item, index) => parseRule(item, index + 1));
+      const totalWeight = rules.reduce((sum, rule) => sum + rule.weight, 0);
+      const totalPenalty = rules.reduce((sum, rule) => sum + rule.penalty, 0);
+      const maxWeightRule = rules.reduce((best, rule) => (rule.weight > best.weight ? rule : best), rules[0]);
+
+      return {
+        sourceName,
+        sectors,
+        industries,
+        rules,
+        totalWeight,
+        totalPenalty,
+        maxWeightRule,
+      };
+    }
+
+    function parseRule(item, index) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        throw new Error(`Regola #${index}: oggetto JSON atteso`);
+      }
+
+      const field = String(item.field ?? "").trim();
+      if (!field) {
+        throw new Error(`Regola #${index}: field mancante`);
+      }
+
+      const weight = readNumber(item.weight, `${field}.weight`);
+      const prefactor = readNumber(item.prefactor, `${field}.prefactor`);
+      const penalty = readNumber(item.penalty ?? item.penality, `${field}.penalty`);
+      const points = normalizePoints(item.points, field);
+
+      return {
+        index: index - 1,
+        field,
+        weight,
+        prefactor,
+        penalty,
+        points,
+        raw: item,
+      };
+    }
+
+    function normalizePoints(rawPoints, field) {
+      if (!Array.isArray(rawPoints) || rawPoints.length < 2) {
+        throw new Error(`${field}.points deve contenere almeno due punti`);
+      }
+
+      const byX = new Map();
+      rawPoints.forEach((point, index) => {
+        if (!Array.isArray(point) || point.length !== 2) {
+          throw new Error(`${field}.points[${index}] deve essere [x, score]`);
+        }
+        const x = readNumber(point[0], `${field}.points[${index}][0]`);
+        const y = readNumber(point[1], `${field}.points[${index}][1]`);
+        byX.set(x, y);
+      });
+
+      const points = Array.from(byX, ([x, y]) => ({ x, y })).sort((left, right) => left.x - right.x);
+      if (points.length < 2) {
+        throw new Error(`${field}.points richiede almeno due x distinti`);
+      }
+      return points;
+    }
+
+    function interpolate(value, points) {
+      if (value <= points[0].x) {
+        return points[0].y;
+      }
+      if (value >= points[points.length - 1].x) {
+        return points[points.length - 1].y;
+      }
+
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const left = points[index];
+        const right = points[index + 1];
+        if (left.x <= value && value <= right.x) {
+          if (right.x === left.x) {
+            return right.y;
+          }
+          const ratio = (value - left.x) / (right.x - left.x);
+          return left.y + ratio * (right.y - left.y);
+        }
+      }
+      return points[points.length - 1].y;
+    }
+
+    function scoreAt(rule, csvValue) {
+      const normalized = csvValue * rule.prefactor;
+      const interpolated = interpolate(normalized, rule.points);
+      return {
+        csvValue,
+        normalized,
+        interpolated,
+        score: clampScore(interpolated),
+      };
+    }
+
+    function setStatus(message) {
+      els.statusLine.textContent = message;
+    }
+
+    function showError(message) {
+      els.errorBox.textContent = message;
+      els.errorBox.classList.remove("hidden");
+    }
+
+    function clearError() {
+      els.errorBox.textContent = "";
+      els.errorBox.classList.add("hidden");
+    }
+
+    async function fetchConfigList() {
+      try {
+        const response = await fetch("/api/configs", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        state.configFiles = Array.isArray(data.files) ? data.files : [];
+        renderConfigSources();
+
+        if (state.configFiles.length > 0) {
+          await loadServerConfig(state.configFiles[0].name);
+        } else {
+          setStatus("Nessun JSON trovato in config.");
+          renderEmptyState();
+        }
+      } catch (error) {
+        state.configFiles = [];
+        renderConfigSources();
+        setStatus("Server locale non disponibile. Apri un JSON dal disco.");
+        renderEmptyState();
+      }
+    }
+
+    async function loadServerConfig(name) {
+      if (!name) {
+        return;
+      }
+      clearError();
+      try {
+        const response = await fetch(`/api/config?name=${encodeURIComponent(name)}`, { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+        setPayload(data.payload, data.name || name);
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    function setPayload(payload, sourceName) {
+      clearError();
+      try {
+        state.rawPayload = payload;
+        state.config = parseConfig(payload, sourceName);
+        state.currentName = sourceName;
+        state.selectedIndex = 0;
+        state.probeValue = "";
+        els.probeInput.value = "";
+        renderAll();
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    function renderEmptyState() {
+      state.rawPayload = null;
+      state.config = null;
+      state.currentName = "";
+      els.overview.innerHTML = `
+        <div class="empty">Nessuna configurazione caricata.</div>
+      `;
+      els.scopeChips.innerHTML = "";
+      els.metricList.innerHTML = "";
+      els.metricTitle.textContent = "Nessuna metrica";
+      els.metricDescription.textContent = "";
+      els.kpiWeight.textContent = "-";
+      els.kpiPrefactor.textContent = "-";
+      els.kpiPenalty.textContent = "-";
+      els.probeResult.textContent = "Inserisci un valore per leggere lo score interpolato.";
+      els.pointsTable.innerHTML = "";
+      els.segmentsTable.innerHTML = "";
+      els.rulesCount.textContent = "";
+      els.rulesTable.innerHTML = "";
+      els.rawJson.textContent = "";
+      drawChart();
+    }
+
+    function renderConfigSources() {
+      els.fileCount.textContent = `${state.configFiles.length} file`;
+      els.configSelect.innerHTML = state.configFiles
+        .map((file) => `<option value="${escapeHtml(file.name)}">${escapeHtml(file.name)}</option>`)
+        .join("");
+
+      if (state.configFiles.length === 0) {
+        els.configSelect.innerHTML = `<option value="">Apri JSON dal disco</option>`;
+      }
+
+      els.configList.innerHTML = state.configFiles
+        .map((file) => {
+          const kb = Math.max(1, Math.round(file.size / 1024));
+          const active = file.name === state.currentName ? " active" : "";
+          return `
+            <button class="file-row${active}" type="button" data-config-name="${escapeHtml(file.name)}">
+              <strong>${escapeHtml(file.name)}</strong>
+              <span>${kb} KB</span>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    function renderAll() {
+      if (!state.config) {
+        renderEmptyState();
+        return;
+      }
+      const selectedFile = state.configFiles.find((file) => file.name === state.currentName);
+      if (selectedFile) {
+        els.configSelect.value = selectedFile.name;
+      }
+
+      setStatus(`${state.currentName} caricato`);
+      renderConfigSources();
+      renderScope();
+      renderOverview();
+      renderMetricList();
+      renderSelectedMetric();
+      renderRulesTable();
+      els.rawJson.textContent = JSON.stringify(state.rawPayload, null, 2);
+    }
+
+    function renderScope() {
+      const config = state.config;
+      const chips = [];
+
+      config.sectors.forEach((sector) => {
+        const label = sector === "" ? "Fallback generale" : sector;
+        const cls = sector === "" ? "fallback" : "";
+        chips.push(`<span class="chip ${cls}">${escapeHtml(label)}</span>`);
+      });
+
+      config.industries.forEach((industry) => {
+        chips.push(`<span class="chip industry">${escapeHtml(industry)}</span>`);
+      });
+
+      els.scopeChips.innerHTML = chips.length > 0 ? chips.join("") : `<span class="chip fallback">Non dichiarata</span>`;
+    }
+
+    function renderOverview() {
+      const config = state.config;
+      const maxRulePct = config.totalWeight ? (config.maxWeightRule.weight / config.totalWeight) * 100 : 0;
+      els.overview.innerHTML = `
+        <div class="stat">
+          <span>Metriche</span>
+          <strong>${config.rules.length}</strong>
+        </div>
+        <div class="stat">
+          <span>Peso totale</span>
+          <strong>${formatNumber(config.totalWeight)}</strong>
+        </div>
+        <div class="stat">
+          <span>Penalty totale</span>
+          <strong>${formatNumber(config.totalPenalty)}</strong>
+        </div>
+        <div class="stat">
+          <span>Peso maggiore</span>
+          <strong>${escapeHtml(config.maxWeightRule.field)} (${formatNumber(maxRulePct, 1)}%)</strong>
+        </div>
+      `;
+    }
+
+    function renderMetricList() {
+      const config = state.config;
+      const filter = els.metricFilter.value.trim().toLowerCase();
+      const rows = config.rules
+        .filter((rule) => !filter || rule.field.toLowerCase().includes(filter))
+        .map((rule) => {
+          const pct = config.totalWeight ? (rule.weight / config.totalWeight) * 100 : 0;
+          const active = rule.index === state.selectedIndex ? " active" : "";
+          const range = `${formatNumber(rule.points[0].x)} -> ${formatNumber(rule.points[rule.points.length - 1].x)}`;
+          return `
+            <button class="metric-row${active}" type="button" data-rule-index="${rule.index}">
+              <strong>${escapeHtml(rule.field)}</strong>
+              <span class="metric-meta">
+                <span>peso ${formatNumber(rule.weight)}</span>
+                <span>${formatNumber(pct, 1)}%</span>
+                <span>x ${escapeHtml(range)}</span>
+              </span>
+              <span class="weight-track"><span style="width: ${Math.max(1, Math.min(100, pct))}%"></span></span>
+            </button>
+          `;
+        });
+
+      els.metricList.innerHTML = rows.length > 0 ? rows.join("") : `<div class="empty">Nessuna metrica trovata.</div>`;
+    }
+
+    function selectedRule() {
+      if (!state.config) {
+        return null;
+      }
+      return state.config.rules[state.selectedIndex] || state.config.rules[0] || null;
+    }
+
+    function renderSelectedMetric() {
+      const rule = selectedRule();
+      if (!rule) {
+        renderEmptyState();
+        return;
+      }
+
+      const pct = state.config.totalWeight ? (rule.weight / state.config.totalWeight) * 100 : 0;
+      els.metricTitle.textContent = rule.field;
+      els.metricDescription.textContent = describeRule(rule);
+      els.kpiWeight.textContent = `${formatNumber(rule.weight)} (${formatNumber(pct, 1)}%)`;
+      els.kpiPrefactor.textContent = formatNumber(rule.prefactor);
+      els.kpiPenalty.textContent = formatNumber(rule.penalty);
+      renderProbe();
+      renderPointsTable(rule);
+      renderSegmentsTable(rule);
+      drawChart();
+    }
+
+    function describeRule(rule) {
+      const slopes = [];
+      for (let index = 0; index < rule.points.length - 1; index += 1) {
+        const left = rule.points[index];
+        const right = rule.points[index + 1];
+        slopes.push(Math.sign(right.y - left.y));
+      }
+      const hasUp = slopes.some((value) => value > 0);
+      const hasDown = slopes.some((value) => value < 0);
+      let trend = "mantiene score costante sui segmenti dichiarati";
+      if (hasUp && hasDown) {
+        trend = "ha una fascia preferita e penalizza gli estremi";
+      } else if (hasUp) {
+        trend = "premia valori piu alti";
+      } else if (hasDown) {
+        trend = "premia valori piu bassi";
+      }
+
+      const bestScore = Math.max(...rule.points.map((point) => clampScore(point.y)));
+      const bestXs = rule.points.filter((point) => clampScore(point.y) === bestScore).map((point) => point.x);
+      const bestLabel = bestXs.length === 1
+        ? `massimo ${formatNumber(bestScore)} a x=${formatNumber(bestXs[0])}`
+        : `massimo ${formatNumber(bestScore)} tra x=${formatNumber(bestXs[0])} e x=${formatNumber(bestXs[bestXs.length - 1])}`;
+
+      return `${trend}; ${bestLabel}. La x del grafico e' il valore CSV moltiplicato per prefactor.`;
+    }
+
+    function renderProbe() {
+      const rule = selectedRule();
+      const raw = els.probeInput.value.trim();
+      state.probeValue = raw;
+
+      if (!rule || raw === "") {
+        els.probeResult.textContent = "Inserisci un valore per leggere lo score interpolato.";
+        drawChart();
+        return;
+      }
+
+      const csvValue = Number(raw);
+      if (!Number.isFinite(csvValue)) {
+        els.probeResult.textContent = "Valore non numerico.";
+        drawChart();
+        return;
+      }
+
+      const result = scoreAt(rule, csvValue);
+      els.probeResult.textContent = `x usata: ${formatNumber(result.normalized)}; interpolato: ${formatNumber(result.interpolated)}; score finale: ${formatNumber(result.score)}.`;
+      drawChart();
+    }
+
+    function renderPointsTable(rule) {
+      const rows = rule.points
+        .map((point, index) => `
+          <tr>
+            <td class="numeric">${index + 1}</td>
+            <td class="numeric">${formatNumber(point.x)}</td>
+            <td class="numeric">${formatNumber(point.y)}</td>
+          </tr>
+        `)
+        .join("");
+
+      els.pointsTable.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th class="numeric">#</th>
+              <th class="numeric">x</th>
+              <th class="numeric">score</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderSegmentsTable(rule) {
+      const rows = [];
+      for (let index = 0; index < rule.points.length - 1; index += 1) {
+        const left = rule.points[index];
+        const right = rule.points[index + 1];
+        const dx = right.x - left.x;
+        const dy = right.y - left.y;
+        const slope = dx === 0 ? 0 : dy / dx;
+        rows.push(`
+          <tr>
+            <td>${formatNumber(left.x)} -> ${formatNumber(right.x)}</td>
+            <td class="numeric">${formatNumber(left.y)} -> ${formatNumber(right.y)}</td>
+            <td class="numeric">${formatNumber(slope)}</td>
+          </tr>
+        `);
+      }
+
+      els.segmentsTable.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Intervallo x</th>
+              <th class="numeric">Score</th>
+              <th class="numeric">Pendenza</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join("")}</tbody>
+        </table>
+      `;
+    }
+
+    function renderRulesTable() {
+      const config = state.config;
+      els.rulesCount.textContent = `${config.rules.length} regole`;
+      const rows = config.rules.map((rule) => {
+        const pct = config.totalWeight ? (rule.weight / config.totalWeight) * 100 : 0;
+        const active = rule.index === state.selectedIndex ? " class=\"active\"" : "";
+        const scoreRange = [
+          Math.min(...rule.points.map((point) => point.y)),
+          Math.max(...rule.points.map((point) => point.y)),
+        ];
+        return `
+          <tr${active} data-rule-index="${rule.index}">
+            <td><strong>${escapeHtml(rule.field)}</strong></td>
+            <td class="numeric">${formatNumber(rule.weight)}</td>
+            <td class="numeric">${formatNumber(pct, 1)}%</td>
+            <td class="numeric">${formatNumber(rule.prefactor)}</td>
+            <td class="numeric">${formatNumber(rule.penalty)}</td>
+            <td class="numeric">${formatNumber(rule.points[0].x)} -> ${formatNumber(rule.points[rule.points.length - 1].x)}</td>
+            <td class="numeric">${formatNumber(scoreRange[0])} -> ${formatNumber(scoreRange[1])}</td>
+            <td>${escapeHtml(rule.points.map((point) => `[${formatNumber(point.x)}, ${formatNumber(point.y)}]`).join(" "))}</td>
+          </tr>
+        `;
+      });
+
+      els.rulesTable.innerHTML = `
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th class="numeric">Peso</th>
+              <th class="numeric">Peso %</th>
+              <th class="numeric">Prefactor</th>
+              <th class="numeric">Penalty</th>
+              <th class="numeric">Range x</th>
+              <th class="numeric">Range score</th>
+              <th>Punti</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join("")}</tbody>
+        </table>
+      `;
+    }
+
+    function drawChart() {
+      const canvas = els.scoreChart;
+      const context = canvas.getContext("2d");
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(320, Math.floor(rect.width));
+      const height = Math.max(300, Math.floor(rect.height));
+
+      if (canvas.width !== Math.floor(width * dpr) || canvas.height !== Math.floor(height * dpr)) {
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+      }
+
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+
+      const rule = selectedRule();
+      if (!rule) {
+        drawEmptyChart(context, width, height);
+        return;
+      }
+
+      const pad = { left: 62, right: 22, top: 24, bottom: 52 };
+      const plotWidth = Math.max(1, width - pad.left - pad.right);
+      const plotHeight = Math.max(1, height - pad.top - pad.bottom);
+      const points = rule.points;
+      const xs = points.map((point) => point.x);
+      const probe = getProbeScore(rule);
+      if (probe) {
+        xs.push(probe.normalized);
+      }
+
+      let minX = Math.min(...xs);
+      let maxX = Math.max(...xs);
+      let spanX = maxX - minX;
+      if (spanX === 0) {
+        spanX = Math.max(1, Math.abs(maxX) || 1);
+      }
+      minX -= spanX * 0.06;
+      maxX += spanX * 0.06;
+
+      const mapX = (x) => pad.left + ((x - minX) / (maxX - minX)) * plotWidth;
+      const mapY = (y) => pad.top + (1 - clampScore(y) / 10) * plotHeight;
+
+      drawGrid(context, width, height, pad, plotWidth, plotHeight, minX, maxX, mapX, mapY);
+
+      context.save();
+      context.beginPath();
+      points.forEach((point, index) => {
+        const x = mapX(point.x);
+        const y = mapY(point.y);
+        if (index === 0) {
+          context.moveTo(x, y);
+        } else {
+          context.lineTo(x, y);
+        }
+      });
+      context.lineWidth = 3;
+      context.strokeStyle = "#0f766e";
+      context.stroke();
+
+      points.forEach((point) => {
+        context.beginPath();
+        context.arc(mapX(point.x), mapY(point.y), 5, 0, Math.PI * 2);
+        context.fillStyle = "#ffffff";
+        context.fill();
+        context.lineWidth = 2;
+        context.strokeStyle = "#0f766e";
+        context.stroke();
+      });
+
+      if (probe) {
+        const x = mapX(probe.normalized);
+        const y = mapY(probe.score);
+        context.beginPath();
+        context.moveTo(x, pad.top);
+        context.lineTo(x, pad.top + plotHeight);
+        context.setLineDash([6, 5]);
+        context.lineWidth = 1.5;
+        context.strokeStyle = "#c2410c";
+        context.stroke();
+        context.setLineDash([]);
+
+        context.beginPath();
+        context.arc(x, y, 6, 0, Math.PI * 2);
+        context.fillStyle = "#c2410c";
+        context.fill();
+
+        context.fillStyle = "#7c2d12";
+        context.font = "12px Segoe UI, Arial, sans-serif";
+        context.textAlign = x > width - 110 ? "right" : "left";
+        context.fillText(`score ${formatNumber(probe.score)}`, x + (x > width - 110 ? -8 : 8), Math.max(pad.top + 14, y - 10));
+      }
+
+      context.restore();
+    }
+
+    function drawEmptyChart(context, width, height) {
+      context.fillStyle = "#657386";
+      context.font = "14px Segoe UI, Arial, sans-serif";
+      context.textAlign = "center";
+      context.fillText("Nessuna curva da disegnare", width / 2, height / 2);
+    }
+
+    function drawGrid(context, width, height, pad, plotWidth, plotHeight, minX, maxX, mapX, mapY) {
+      context.save();
+      context.strokeStyle = "#d8e0e8";
+      context.lineWidth = 1;
+      context.fillStyle = "#657386";
+      context.font = "12px Segoe UI, Arial, sans-serif";
+
+      const yTicks = [0, 2.5, 5, 7.5, 10];
+      yTicks.forEach((tick) => {
+        const y = mapY(tick);
+        context.beginPath();
+        context.moveTo(pad.left, y);
+        context.lineTo(pad.left + plotWidth, y);
+        context.stroke();
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+        context.fillText(formatNumber(tick, 1), pad.left - 10, y);
+      });
+
+      const xTicks = 5;
+      for (let index = 0; index <= xTicks; index += 1) {
+        const value = minX + ((maxX - minX) / xTicks) * index;
+        const x = mapX(value);
+        context.beginPath();
+        context.moveTo(x, pad.top);
+        context.lineTo(x, pad.top + plotHeight);
+        context.stroke();
+        context.textAlign = "center";
+        context.textBaseline = "top";
+        context.fillText(formatNumber(value), x, pad.top + plotHeight + 10);
+      }
+
+      context.strokeStyle = "#8ea0af";
+      context.lineWidth = 1.2;
+      context.beginPath();
+      context.moveTo(pad.left, pad.top);
+      context.lineTo(pad.left, pad.top + plotHeight);
+      context.lineTo(pad.left + plotWidth, pad.top + plotHeight);
+      context.stroke();
+
+      context.fillStyle = "#334155";
+      context.font = "12px Segoe UI, Arial, sans-serif";
+      context.textAlign = "center";
+      context.fillText("valore usato nello score", pad.left + plotWidth / 2, height - 12);
+
+      context.save();
+      context.translate(16, pad.top + plotHeight / 2);
+      context.rotate(-Math.PI / 2);
+      context.fillText("score 0-10", 0, 0);
+      context.restore();
+
+      context.restore();
+    }
+
+    function getProbeScore(rule) {
+      const raw = els.probeInput.value.trim();
+      if (raw === "") {
+        return null;
+      }
+      const csvValue = Number(raw);
+      if (!Number.isFinite(csvValue)) {
+        return null;
+      }
+      return scoreAt(rule, csvValue);
+    }
+
+    function selectRule(index) {
+      if (!state.config || !state.config.rules[index]) {
+        return;
+      }
+      state.selectedIndex = index;
+      renderMetricList();
+      renderSelectedMetric();
+      renderRulesTable();
+    }
+
+    els.loadConfigButton.addEventListener("click", () => {
+      loadServerConfig(els.configSelect.value);
+    });
+
+    els.configSelect.addEventListener("change", () => {
+      loadServerConfig(els.configSelect.value);
+    });
+
+    els.configList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-config-name]");
+      if (!button) {
+        return;
+      }
+      loadServerConfig(button.dataset.configName);
+    });
+
+    els.metricList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-rule-index]");
+      if (!button) {
+        return;
+      }
+      selectRule(Number(button.dataset.ruleIndex));
+    });
+
+    els.rulesTable.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-rule-index]");
+      if (!row) {
+        return;
+      }
+      selectRule(Number(row.dataset.ruleIndex));
+    });
+
+    els.metricFilter.addEventListener("input", () => {
+      renderMetricList();
+    });
+
+    els.probeInput.addEventListener("input", () => {
+      renderProbe();
+    });
+
+    els.fileInput.addEventListener("change", async () => {
+      const file = els.fileInput.files && els.fileInput.files[0];
+      if (!file) {
+        return;
+      }
+      try {
+        const text = await file.text();
+        setPayload(JSON.parse(text), file.name);
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        els.fileInput.value = "";
+      }
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      drawChart();
+    });
+    resizeObserver.observe(els.scoreChart);
+
+    fetchConfigList();
+  </script>
+</body>
+</html>

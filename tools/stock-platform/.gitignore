@@ -1,0 +1,11 @@
+# Ambiente Python e cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# Export, checkpoint e dati di lavoro locali
+outputs/
+*.csv
+*.jsonl
+*.partial

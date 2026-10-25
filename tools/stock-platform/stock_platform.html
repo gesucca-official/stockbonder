@@ -1,0 +1,3419 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Platform</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="14" fill="%230f766e"/%3E%3Cpath d="M16 44 28 30l8 8 12-18" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/%3E%3Ccircle cx="16" cy="44" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="28" cy="30" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="36" cy="38" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="48" cy="20" r="4" fill="%23fbbf24"/%3E%3C/svg%3E'>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f4;
+      --surface: #ffffff;
+      --surface-2: #f0f4f3;
+      --ink: #17211d;
+      --muted: #65736d;
+      --line: #d9e0dc;
+      --line-strong: #b9c5bf;
+      --accent: #0f766e;
+      --accent-2: #bf5b04;
+      --danger: #b42318;
+      --ok: #17803c;
+      --warn: #9a6400;
+      --shadow: 0 18px 50px rgba(23, 33, 29, 0.08);
+      --radius: 8px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 7px;
+      min-height: 36px;
+      padding: 0 12px;
+      cursor: pointer;
+      transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      background: #f6fbfa;
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button.icon-button {
+      width: 36px;
+      min-width: 36px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      line-height: 1;
+    }
+
+    button.icon-button svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    button.warn {
+      color: var(--danger);
+      border-color: #e3b4ad;
+      background: #fff9f8;
+    }
+    button.ghost {
+      background: transparent;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      min-height: 36px;
+      padding: 8px 10px;
+      background: white;
+      color: var(--ink);
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      min-height: 16px;
+      accent-color: var(--accent);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(246, 247, 244, 0.92);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .mark svg {
+      width: 34px;
+      height: 34px;
+      display: block;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .workspace-folders {
+      flex: 1 1 880px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 230px)) auto auto;
+      gap: 8px;
+      align-items: end;
+      justify-content: end;
+      min-width: 0;
+    }
+
+    .folder-field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .folder-field input {
+      width: 100%;
+      min-width: 0;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: none;
+    }
+
+    .folder-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 36px;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .folder-input-row input {
+      min-width: 0;
+    }
+
+    .folder-check {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 36px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .folder-check input {
+      flex: 0 0 auto;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+      min-height: calc(100vh - 63px);
+    }
+
+    .layout.sidebar-collapsed {
+      grid-template-columns: 66px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      padding: 14px;
+      background: #fbfcfa;
+      transition: padding 160ms ease;
+    }
+
+    .sidebar-tools {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .sidebar.is-collapsed {
+      padding: 10px;
+    }
+
+    .sidebar.is-collapsed .sidebar-tools {
+      justify-content: center;
+    }
+
+    .sidebar.is-collapsed .nav button {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .sidebar.is-collapsed .nav-label {
+      display: none;
+    }
+
+    .sidebar.is-collapsed #sidebarToggle svg {
+      transform: rotate(180deg);
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      position: sticky;
+      top: 82px;
+    }
+
+    .nav button {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border-color: transparent;
+      background: transparent;
+      min-height: 42px;
+    }
+
+    .nav button.active {
+      background: #e8f4f1;
+      border-color: #c6dfd9;
+      color: #0b5e58;
+    }
+
+    .nav .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--line-strong);
+      flex: 0 0 auto;
+    }
+
+    .nav button.active .nav-dot { background: var(--accent); }
+
+    main {
+      min-width: 0;
+      padding: 18px;
+    }
+
+    .view { display: none; }
+    .view.active {
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .section-head > div {
+      min-width: 0;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel.pad {
+      padding: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .panel-head > div {
+      min-width: 0;
+    }
+
+    .panel-body {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .panel.is-collapsed .panel-body {
+      display: none;
+    }
+
+    .collapse-toggle {
+      flex: 0 0 auto;
+    }
+
+    .collapse-toggle svg {
+      transition: transform 160ms ease;
+    }
+
+    .panel.is-collapsed .collapse-toggle svg {
+      transform: rotate(-90deg);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: 1 / -1; }
+
+    .checks {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px 10px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px;
+      background: var(--surface-2);
+      border-radius: 7px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .field-note {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .basket-status {
+      border: 1px solid #cfe2dc;
+      background: #f5fbfa;
+      color: #31574f;
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .job-shell {
+      display: grid;
+      grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .job-list {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .job-card {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 11px;
+      display: grid;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .job-card.active {
+      border-color: var(--accent);
+      background: #f5fbfa;
+    }
+
+    .job-history {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px;
+    }
+
+    .job-history summary {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .job-history-list {
+      display: grid;
+      gap: 8px;
+      padding-top: 9px;
+    }
+
+    .job-card h3 {
+      font-size: 13px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #edf1ef;
+      color: #3d4c46;
+      white-space: nowrap;
+    }
+
+    .badge.completed { background: #e8f7ed; color: var(--ok); }
+    .badge.failed, .badge.cancelled { background: #fff0ed; color: var(--danger); }
+    .badge.running, .badge.queued, .badge.cancelling { background: #e8f4f1; color: var(--accent); }
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: #e7ece9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      width: 0%;
+      transition: width 220ms ease;
+    }
+
+    .log-box {
+      min-height: 360px;
+      max-height: 560px;
+      overflow: auto;
+      background: #111815;
+      color: #dff2eb;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .tools-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .tools-bar > * {
+      min-width: 0;
+    }
+
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .folder-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .folder-card strong,
+    .folder-card code {
+      overflow-wrap: anywhere;
+    }
+
+    .folder-card .stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cleanup-row {
+      display: grid;
+      grid-template-columns: minmax(92px, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(240px, 330px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .config-list-panel {
+      align-self: start;
+    }
+
+    @media (min-width: 1181px) {
+      .config-list-panel {
+        position: sticky;
+        top: 118px;
+        max-height: calc(100vh - 138px);
+        overflow: hidden;
+      }
+
+      .config-list-panel .panel-body {
+        min-height: 0;
+      }
+
+      .config-list-panel .list-panel {
+        max-height: min(520px, calc(100vh - 260px));
+      }
+    }
+
+    .list-panel {
+      display: grid;
+      gap: 8px;
+      max-height: 640px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .file-button {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 10px;
+      text-align: left;
+      display: grid;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .file-button.active {
+      border-color: var(--accent);
+      background: #f5fbfa;
+    }
+
+    .file-button strong {
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .file-title {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .file-title strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-meta {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      border-radius: var(--radius);
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+      min-height: 72px;
+      min-width: 0;
+    }
+
+    .stat span { color: var(--muted); font-size: 12px; }
+    .stat strong { font-size: 20px; line-height: 1.1; overflow-wrap: anywhere; }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .table-scroll-controls {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 9px;
+      text-align: left;
+      font-size: 12px;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f4f7f5;
+      color: #394842;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    th.sticky-column,
+    td.sticky-column {
+      position: sticky;
+      left: var(--sticky-left, 0px);
+      z-index: 3;
+      box-shadow: 1px 0 0 var(--line);
+    }
+
+    th.sticky-column {
+      z-index: 5;
+    }
+
+    td.sticky-column {
+      background: #ffffff;
+    }
+
+    tbody tr:hover td.sticky-column { background: #f8fbfa; }
+
+    .score-cell {
+      display: grid;
+      gap: 5px;
+      min-width: 86px;
+    }
+
+    .score-value {
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .score-bar {
+      width: 78px;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5ebe8;
+      overflow: hidden;
+    }
+
+    .score-bar span {
+      display: block;
+      height: 100%;
+      width: var(--score-width, 0%);
+      background: var(--score-color, var(--accent));
+    }
+
+    .th-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .pin-button {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted);
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .pin-button svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pin-button.is-active {
+      color: var(--accent);
+      background: #dff1ee;
+      border-color: #b8dad4;
+    }
+
+    td {
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tbody tr:hover { background: #f8fbfa; }
+
+    #configDetail table {
+      min-width: 640px;
+    }
+
+    #configDetail td {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      max-width: 360px;
+    }
+
+    .metric-chart {
+      width: 150px;
+      height: 52px;
+      display: block;
+    }
+
+    .json-box {
+      max-height: 340px;
+      overflow: auto;
+      background: #111815;
+      color: #dff2eb;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .rank-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(310px, 420px);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .column-box {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      max-height: 210px;
+      overflow: auto;
+      padding-top: 10px;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .basket-list {
+      display: grid;
+      gap: 8px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .basket-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 80px 92px 32px;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 9px;
+      background: white;
+    }
+
+    .basket-item input {
+      min-height: 32px;
+      padding: 5px 7px;
+    }
+
+    .basket-mini-field {
+      display: grid;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      text-transform: uppercase;
+      min-width: 0;
+    }
+
+    .mini-title {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .mini-title strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 7px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(70px, 120px) minmax(0, 1fr) 54px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .bar-track {
+      height: 8px;
+      background: #e7ece9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-track span {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .kv {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .kv b {
+      color: var(--muted);
+      display: block;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .empty {
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+      background: #fbfcfa;
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 50;
+      max-width: min(420px, calc(100vw - 32px));
+      background: #111815;
+      color: #eef8f3;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      display: none;
+      font-size: 13px;
+    }
+
+    .toast.show { display: block; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(17, 24, 21, 0.28);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-panel {
+      width: min(560px, 100%);
+      max-height: min(680px, calc(100vh - 36px));
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto auto minmax(160px, 1fr) auto;
+      gap: 12px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .dialog-path {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface-2);
+      padding: 8px 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .directory-list {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: auto;
+      display: grid;
+      align-content: start;
+      background: #fbfcfa;
+    }
+
+    .directory-row {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .directory-row:last-child {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 1180px) {
+      .grid-2, .job-shell, .split, .rank-layout {
+        grid-template-columns: 1fr;
+      }
+      .filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .column-box {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar {
+        align-items: flex-start;
+        padding: 12px;
+      }
+      .workspace-folders {
+        flex-basis: 100%;
+        justify-content: stretch;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .folder-check,
+      #applyFolders {
+        grid-column: 1 / -1;
+      }
+      .layout.sidebar-collapsed,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: sticky;
+        top: 59px;
+        z-index: 18;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 8px 12px;
+      }
+      .sidebar-tools {
+        display: none;
+      }
+      .sidebar.is-collapsed .nav-label {
+        display: inline;
+      }
+      .sidebar.is-collapsed .nav button {
+        justify-content: center;
+        padding: 0 6px;
+      }
+      .nav {
+        position: static;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .nav button {
+        justify-content: center;
+        text-align: center;
+        min-height: 38px;
+        font-size: 12px;
+      }
+      main { padding: 12px; }
+      .form-grid, .grid-3, .stat-grid, .filters, .column-box, .folder-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .checks {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .span-2, .span-3, .span-4 { grid-column: 1 / -1; }
+      .basket-item {
+        grid-template-columns: 1fr 70px 82px 32px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .brand,
+      .workspace-folders,
+      .top-actions {
+        width: 100%;
+      }
+      .top-actions {
+        justify-content: stretch;
+      }
+      .top-actions button {
+        flex: 1 1 auto;
+      }
+      .workspace-folders {
+        grid-template-columns: 1fr;
+      }
+      #applyFolders {
+        width: 100%;
+      }
+      .form-grid, .grid-3, .stat-grid, .filters, .column-box, .checks, .folder-grid, .cleanup-row {
+        grid-template-columns: 1fr;
+      }
+      .section-head, .tools-bar, .pager {
+        display: grid;
+      }
+      .nav button {
+        padding: 0 6px;
+      }
+      .nav .nav-dot { display: none; }
+      th, td {
+        padding: 7px;
+      }
+      .basket-item {
+        grid-template-columns: 1fr 1fr;
+      }
+      .basket-item button {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" focusable="false">
+          <rect width="64" height="64" rx="14" fill="#0f766e"></rect>
+          <path d="M16 44 28 30l8 8 12-18" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="16" cy="44" r="4" fill="#fbbf24"></circle>
+          <circle cx="28" cy="30" r="4" fill="#fbbf24"></circle>
+          <circle cx="36" cy="38" r="4" fill="#fbbf24"></circle>
+          <circle cx="48" cy="20" r="4" fill="#fbbf24"></circle>
+        </svg>
+      </div>
+      <div>
+        <h1>Stock Platform</h1>
+        <div class="subtle" id="rootLabel">Caricamento workspace...</div>
+      </div>
+    </div>
+    <div class="workspace-folders" aria-label="Cartelle di lavoro">
+      <label class="folder-field">Fondamentali
+        <span class="folder-input-row">
+          <input id="fundamentalsDir" type="text" autocomplete="off" spellcheck="false">
+          <button class="icon-button folder-pick" type="button" data-folder-target="fundamentalsDir" title="Sfoglia cartelle" aria-label="Sfoglia cartella fondamentali">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h4"></path></svg>
+          </button>
+        </span>
+      </label>
+      <label class="folder-field">Ranking
+        <span class="folder-input-row">
+          <input id="rankingDir" type="text" autocomplete="off" spellcheck="false">
+          <button class="icon-button folder-pick" type="button" data-folder-target="rankingDir" title="Sfoglia cartelle" aria-label="Sfoglia cartella ranking">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h4"></path></svg>
+          </button>
+        </span>
+      </label>
+      <label class="folder-field">Config
+        <span class="folder-input-row">
+          <input id="configDir" type="text" autocomplete="off" spellcheck="false">
+          <button class="icon-button folder-pick" type="button" data-folder-target="configDir" title="Sfoglia cartelle" aria-label="Sfoglia cartella config">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h4"></path></svg>
+          </button>
+        </span>
+      </label>
+      <label class="folder-check"><input id="configIncludeSubdirs" type="checkbox">Sottocartelle config</label>
+      <button id="applyFolders" type="button">Applica</button>
+    </div>
+    <div class="top-actions">
+      <span class="badge" id="jobPulse">Job: 0</span>
+      <button id="refreshAll" type="button">Aggiorna</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-tools">
+        <button class="icon-button" id="sidebarToggle" type="button" title="Collassa navigazione" aria-label="Collassa navigazione" aria-expanded="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+        </button>
+      </div>
+      <nav class="nav" aria-label="Sezioni">
+        <button class="active" data-view="pipeline" type="button"><span class="nav-dot"></span><span class="nav-label">Pipeline</span></button>
+        <button data-view="configs" type="button"><span class="nav-dot"></span><span class="nav-label">Valutazioni</span></button>
+        <button data-view="ranking" type="button"><span class="nav-dot"></span><span class="nav-label">Ranking</span></button>
+      </nav>
+    </aside>
+
+    <main>
+      <section class="view active" id="view-pipeline">
+        <div class="section-head">
+          <div>
+            <h2>Pipeline operativa</h2>
+            <div class="subtle">Lancia fondamentali e fitness score, segui log e output senza uscire dalla piattaforma.</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <form class="panel pad stack collapsible" id="fundamentalsForm" data-collapse-key="fundamentals">
+            <div class="panel-head">
+              <div>
+                <h3>Scarica fondamentali</h3>
+                <div class="subtle">Output predefinito nella cartella fondamentali scelta in alto.</div>
+              </div>
+              <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            </div>
+            <div class="panel-body">
+            <div class="form-grid">
+              <label>Mercato
+                <select name="market">
+                  <option value="all">Tutti</option>
+                  <option value="borsa">Borsa Italiana</option>
+                  <option value="xetra">Xetra</option>
+                  <option value="lse">LSE</option>
+                  <option value="nyse">NYSE</option>
+                  <option value="nasdaq">NASDAQ</option>
+                </select>
+              </label>
+              <label>Formato
+                <select name="format">
+                  <option value="csv">CSV</option>
+                  <option value="jsonl">JSONL</option>
+                  <option value="json">JSON</option>
+                </select>
+              </label>
+              <label>Limit test
+                <input name="limit" type="number" min="1" placeholder="Vuoto = tutto">
+              </label>
+              <label>Worker
+                <input name="workers" type="number" min="1" max="16" value="4">
+              </label>
+              <label>Retry
+                <input name="retries" type="number" min="0" max="10" value="1">
+              </label>
+              <label>Sleep retry
+                <input name="retrySleep" type="number" min="0" max="120" step="0.5" value="2">
+              </label>
+              <label class="span-2">Output
+                <input name="output" placeholder="outputs/fundamentals/fundamentals_all_YYYYMMDD.csv">
+              </label>
+            </div>
+            <div class="checks">
+              <label class="check"><input name="deepFundamentals" type="checkbox">Deep fundamentals</label>
+              <label class="check"><input name="includeIsin" type="checkbox">Include ISIN</label>
+              <label class="check"><input name="includeSectorless" type="checkbox">Tieni senza settore</label>
+              <label class="check"><input name="listOnly" type="checkbox">Solo lista</label>
+              <label class="check"><input name="includeEtfs" type="checkbox">Include ETF</label>
+              <label class="check"><input name="includeNonCommon" type="checkbox">Include strumenti non common</label>
+              <label class="check"><input name="includeBorsaGem" type="checkbox">Borsa GEM</label>
+              <label class="check"><input name="includeNonEquity" type="checkbox">Quote non equity</label>
+            </div>
+            <div class="actions-row">
+              <div class="subtle">Il server usa stdin chiuso: se trova un .partial riprende in automatico.</div>
+              <button class="primary" type="submit">Avvia export</button>
+            </div>
+            </div>
+          </form>
+
+          <form class="panel pad stack collapsible" id="fitnessForm" data-collapse-key="fitness">
+            <div class="panel-head">
+              <div>
+                <h3>Calcola fitness score</h3>
+                <div class="subtle">Legge dalla cartella fondamentali e scrive nella cartella ranking.</div>
+              </div>
+              <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            </div>
+            <div class="panel-body">
+            <div class="form-grid">
+              <label class="span-2">Input CSV
+                <select name="input"></select>
+              </label>
+              <label class="span-2">Config scoring
+                <select name="config"></select>
+              </label>
+              <label class="span-4">Output CSV
+                <input name="output" placeholder="outputs/fitness/input_fitness_YYYYMMDD.csv">
+              </label>
+            </div>
+            <div class="actions-row">
+              <div class="subtle" id="fitnessHint">Carico CSV e configurazioni disponibili...</div>
+              <button class="primary" type="submit">Avvia scoring</button>
+            </div>
+            </div>
+          </form>
+        </div>
+
+        <section class="panel pad stack collapsible" data-collapse-key="output-folders">
+          <div class="panel-head">
+            <div>
+              <h3>Cartelle output</h3>
+              <div class="subtle">Pulizia confinata alle due cartelle scelte nella barra in alto.</div>
+            </div>
+            <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+            </button>
+          </div>
+          <div class="panel-body">
+            <div class="folder-grid" id="outputFolders"></div>
+          </div>
+        </section>
+
+        <section class="panel pad stack collapsible" data-collapse-key="jobs">
+          <div class="panel-head">
+            <div>
+              <h3>Job e progresso</h3>
+              <div class="subtle">Log live degli script lanciati dalla piattaforma.</div>
+            </div>
+            <div class="tools-bar">
+              <button id="refreshJobs" type="button">Aggiorna job</button>
+              <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="panel-body">
+          <div class="job-shell">
+            <div class="job-list" id="jobList"></div>
+            <div class="stack">
+              <div class="tools-bar">
+                <div>
+                  <h3 id="jobTitle">Nessun job selezionato</h3>
+                  <div class="subtle" id="jobMeta">Avvia uno script per vedere qui log e comando.</div>
+                </div>
+                <button class="warn" id="cancelJob" type="button" disabled>Ferma</button>
+              </div>
+              <pre class="log-box" id="jobLog">Log vuoto.</pre>
+            </div>
+          </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-configs">
+        <div class="section-head">
+          <div>
+            <h2>Valutazioni JSON</h2>
+            <div class="subtle">Esplora settori, industrie, pesi, penalita e curve di scoring.</div>
+          </div>
+          <button id="refreshConfigs" type="button">Aggiorna config</button>
+        </div>
+
+        <div class="split">
+          <aside class="panel pad stack collapsible config-list-panel" data-collapse-key="config-list">
+            <div class="panel-head">
+              <div>
+                <h3>Config disponibili</h3>
+                <div class="subtle" id="configFolderHint">JSON letti dalla cartella config.</div>
+              </div>
+              <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            </div>
+            <div class="panel-body">
+            <label>Cerca config
+              <input id="configSearch" placeholder="banks, core, fallback...">
+            </label>
+            <div class="list-panel" id="configList"></div>
+            </div>
+          </aside>
+          <section class="panel pad stack collapsible" data-collapse-key="config-detail">
+            <div class="panel-head">
+              <div>
+                <h3>Dettaglio valutazione</h3>
+                <div class="subtle">Regole, punti e curve del JSON selezionato.</div>
+              </div>
+              <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            </div>
+            <div class="panel-body" id="configDetail">
+              <div class="empty">Seleziona un JSON di scoring.</div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-ranking">
+        <div class="section-head">
+          <div>
+            <h2>Ranking e basket</h2>
+            <div class="subtle">Carica un CSV, filtra le aziende e costruisci un basket esportabile.</div>
+          </div>
+          <button id="refreshCsvFiles" type="button">Aggiorna CSV</button>
+        </div>
+
+        <div class="rank-layout">
+          <section class="stack">
+            <div class="panel pad stack collapsible" data-collapse-key="ranking-loader">
+              <div class="panel-head">
+                <div>
+                  <h3>Dataset ranking</h3>
+                  <div class="subtle">Mostra solo i CSV nella cartella ranking scelta in alto.</div>
+                </div>
+                <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              </div>
+              <div class="panel-body">
+              <div class="tools-bar">
+                <label style="flex: 1 1 320px;">CSV ranking
+                  <select id="csvSelect"></select>
+                </label>
+                <button class="primary" id="loadCsv" type="button">Carica CSV</button>
+              </div>
+              <div class="stat-grid" id="csvStats"></div>
+              </div>
+            </div>
+
+            <div class="panel pad stack collapsible" data-collapse-key="ranking-table">
+              <div class="panel-head">
+                <div>
+                  <h3>Filtri e tabella</h3>
+                  <div class="subtle">Filtra, ordina, scegli colonne e blocca quelle importanti.</div>
+                </div>
+                <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              </div>
+              <div class="panel-body">
+              <div class="filters">
+                <label>Ricerca
+                  <input id="globalSearch" placeholder="Nome, ticker, paese...">
+                </label>
+                <label>Settore
+                  <select id="sectorFilter"><option value="">Tutti</option></select>
+                </label>
+                <label>Paese
+                  <select id="countryFilter"><option value="">Tutti</option></select>
+                </label>
+                <label>Colonna voto
+                  <select id="scoreColumn"></select>
+                </label>
+                <label>Voto min
+                  <input id="minScore" type="number" step="0.1" min="0" max="10" placeholder="0">
+                </label>
+                <label>Completezza min
+                  <input id="minComplete" type="number" step="1" min="0" max="100" placeholder="0">
+                </label>
+                <label>Mkt cap min EUR
+                  <input id="marketCapMin" type="number" step="1000000" min="0" placeholder="0">
+                </label>
+                <label>Mkt cap max EUR
+                  <input id="marketCapMax" type="number" step="1000000" min="0" placeholder="Nessuno">
+                </label>
+              </div>
+              <details>
+                <summary>Colonne tabella</summary>
+                <div class="tools-bar" style="padding-top: 10px;">
+                  <label style="flex: 1 1 220px;">Preset colonne
+                    <select id="columnPreset">
+                      <option value="core">Core</option>
+                      <option value="scores">Score</option>
+                      <option value="valuation">Valuation</option>
+                      <option value="quality">Quality</option>
+                      <option value="all">Tutte</option>
+                      <option value="custom">Personalizzato</option>
+                    </select>
+                  </label>
+                  <button id="resetPinnedColumns" type="button">Reset pin</button>
+                </div>
+                <div class="column-box" id="columnChooser"></div>
+              </details>
+              <div class="pager">
+                <div class="subtle" id="tableInfo">Nessun CSV caricato.</div>
+                <div class="tools-bar">
+                  <button id="prevPage" type="button">Indietro</button>
+                  <span class="badge" id="pageBadge">1 / 1</span>
+                  <button id="nextPage" type="button">Avanti</button>
+                  <div class="table-scroll-controls" aria-label="Scroll tabella">
+                    <button class="icon-button" id="scrollTableLeft" type="button" title="Scorri tabella a sinistra" aria-label="Scorri tabella a sinistra">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                    </button>
+                    <button class="icon-button" id="scrollTableRight" type="button" title="Scorri tabella a destra" aria-label="Scorri tabella a destra">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                    </button>
+                  </div>
+                  <button id="exportFiltered" type="button">Export filtrate</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table id="rankTable">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="stack">
+            <section class="panel pad stack collapsible" data-collapse-key="basket">
+              <div class="panel-head">
+                <div>
+                  <h3>Basket builder</h3>
+                  <div class="subtle" id="fxStatus">FX: in attesa</div>
+                </div>
+                <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              </div>
+              <div class="panel-body">
+              <div class="grid-3">
+                <label>Numero stock
+                  <input id="basketCount" type="number" min="1" value="20">
+                  <span class="field-note">Target totale del basket.</span>
+                </label>
+                <label>Capitale EUR
+                  <input id="basketCapital" type="number" min="0" step="100" value="10000">
+                  <span class="field-note">Usato per calcolare quantita intere.</span>
+                </label>
+                <label>Max settore %
+                  <input id="maxSectorPct" type="number" min="1" max="100" value="25">
+                  <span class="field-note">Limite massimo di titoli per settore.</span>
+                </label>
+                <label>Max paese %
+                  <input id="maxCountryPct" type="number" min="1" max="100" value="35">
+                  <span class="field-note">Limite massimo di titoli per paese.</span>
+                </label>
+                <label>Min score indicatori
+                  <input id="minMetricScore" type="number" min="0" max="10" step="0.1" placeholder="Vuoto">
+                  <span class="field-note">Soglia per le colonne indicatore *_score.</span>
+                </label>
+                <label>Eccezioni sotto soglia
+                  <input id="maxMetricExceptions" type="number" min="0" value="0">
+                  <span class="field-note">Indicatori mancanti o sotto soglia ammessi.</span>
+                </label>
+              </div>
+              <div class="tools-bar">
+                <button class="primary" id="autofillBasket" type="button">Autofill</button>
+                <button id="rebalanceScore" type="button" title="Ricalcola le quantita in base alla colonna voto" aria-label="Ricalcola quantita in base alla colonna voto">Pesa voto</button>
+                <button id="rebalanceCap" type="button" title="Ricalcola le quantita in base alla market cap" aria-label="Ricalcola quantita in base alla market cap">Pesa mkt cap</button>
+                <button id="exportBasket" type="button">Export basket</button>
+                <button class="warn" id="clearBasket" type="button">Svuota</button>
+              </div>
+              <div class="basket-status" id="basketStatus">Basket pronto. Carica un CSV e usa Autofill o Add dalla tabella.</div>
+              <div class="stat-grid" id="basketStats"></div>
+              <div class="basket-list" id="basketList"></div>
+              </div>
+            </section>
+
+            <section class="panel pad stack collapsible" data-collapse-key="composition">
+              <div class="panel-head">
+                <div>
+                  <h3>Composizione</h3>
+                  <div class="subtle">Distribuzione per settori, paesi e fasce score.</div>
+                </div>
+                <button class="icon-button collapse-toggle" type="button" title="Comprimi sezione" aria-label="Comprimi sezione" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              </div>
+              <div class="panel-body">
+              <div class="bars" id="compositionBars"></div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="folderDialog" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="folderDialogTitle">
+      <div class="panel-head">
+        <div>
+          <h3 id="folderDialogTitle">Scegli cartella</h3>
+          <div class="subtle">Naviga le cartelle della workspace e seleziona quella da usare.</div>
+        </div>
+        <button class="icon-button" id="folderDialogClose" type="button" title="Chiudi" aria-label="Chiudi">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="dialog-path" id="folderDialogPath">/</div>
+      <div class="directory-list" id="folderDialogList"></div>
+      <div class="tools-bar">
+        <button id="folderDialogUp" type="button">Su</button>
+        <div class="tools-bar">
+          <button id="folderDialogCancel" type="button">Annulla</button>
+          <button class="primary" id="folderDialogSelect" type="button">Usa cartella</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const DEFAULT_FUNDAMENTALS_DIR = "outputs/fundamentals";
+    const DEFAULT_RANKING_DIR = "outputs/fitness";
+    const DEFAULT_CONFIG_DIR = "config";
+
+    const state = {
+      files: null,
+      jobs: [],
+      jobStatuses: {},
+      selectedJobId: null,
+      configs: [],
+      activeConfigPath: null,
+      folders: {
+        fundamentals: localStorage.getItem("stock-platform-fundamentals-dir") || DEFAULT_FUNDAMENTALS_DIR,
+        ranking: localStorage.getItem("stock-platform-ranking-dir") || DEFAULT_RANKING_DIR,
+        config: localStorage.getItem("stock-platform-config-dir") || DEFAULT_CONFIG_DIR
+      },
+      configIncludeSubdirs: localStorage.getItem("stock-platform-config-include-subdirs") === "1",
+      folderDialog: {
+        targetId: "",
+        path: ""
+      },
+      csv: {
+        path: "",
+        columns: [],
+        rows: [],
+        filtered: [],
+        page: 1,
+        pageSize: 50,
+        sortColumn: "",
+        sortDir: "desc",
+        visibleColumns: new Set(),
+        frozenColumns: new Set(),
+        columnPreset: "core"
+      },
+      basket: [],
+      fx: null
+    };
+
+    const COLUMN_PRESETS = {
+      core: ["market", "symbol", "yahoo_symbol", "isin", "name", "country", "sector", "industry", "currency", "current_price", "market_cap", "fitness_score", "valid_score_weight_pct", "fitness_config"],
+      scores: ["market", "symbol", "name", "country", "sector", "industry", "fitness_score", "valid_score_weight_pct", "weighted_score_before_penalty", "missing_penalty"],
+      valuation: ["market", "symbol", "name", "country", "sector", "industry", "currency", "current_price", "market_cap", "enterprise_value", "pe_ttm", "pe_forward", "peg_ratio", "price_to_sales", "price_to_book", "ev_to_revenue", "ev_to_ebitda", "fitness_score"],
+      quality: ["market", "symbol", "name", "country", "sector", "industry", "roe_pct", "roa_pct", "roic_pct", "gross_margin_pct", "operating_margin_pct", "net_margin_pct", "fcf_yield_pct", "debt_to_equity_ratio", "current_ratio", "fitness_score"],
+      all: []
+    };
+    const ACTIVE_JOB_STATUSES = new Set(["queued", "running", "cancelling"]);
+    const TERMINAL_JOB_STATUSES = new Set(["completed", "failed", "cancelled"]);
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+    function setBasketStatus(message) {
+      const status = $("#basketStatus");
+      if (status) status.textContent = message;
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, options);
+      const text = await response.text();
+      let payload = null;
+      try {
+        payload = text ? JSON.parse(text) : null;
+      } catch (error) {
+        payload = text;
+      }
+      if (!response.ok) {
+        const message = payload && payload.error ? payload.error : `Errore HTTP ${response.status}`;
+        throw new Error(message);
+      }
+      return payload;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function formatBytes(value) {
+      const bytes = Number(value || 0);
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    function formatDate(seconds) {
+      if (!seconds) return "";
+      return new Date(seconds * 1000).toLocaleString();
+    }
+
+    function compactDate(seconds) {
+      if (!seconds) return "";
+      return new Date(seconds * 1000).toLocaleDateString(undefined, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit"
+      });
+    }
+
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const normalized = String(value).trim().replace(/\s/g, "").replace(",", ".");
+      if (!normalized) return null;
+      const number = Number(normalized);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function niceNumber(value, digits = 2) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "";
+      return number.toLocaleString(undefined, { maximumFractionDigits: digits });
+    }
+
+    function fileName(path) {
+      return String(path || "").split("/").pop();
+    }
+
+    function setView(view) {
+      $$(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+      $$(".view").forEach((section) => section.classList.toggle("active", section.id === `view-${view}`));
+    }
+
+    function setSidebarCollapsed(collapsed) {
+      $(".layout").classList.toggle("sidebar-collapsed", collapsed);
+      $(".sidebar").classList.toggle("is-collapsed", collapsed);
+      const button = $("#sidebarToggle");
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.title = collapsed ? "Espandi navigazione" : "Collassa navigazione";
+      button.setAttribute("aria-label", button.title);
+      localStorage.setItem("stock-platform-sidebar-collapsed", collapsed ? "1" : "0");
+    }
+
+    function initSidebar() {
+      setSidebarCollapsed(localStorage.getItem("stock-platform-sidebar-collapsed") === "1");
+    }
+
+    function collapseStorageKey(key) {
+      return `stock-platform-collapse:${key}`;
+    }
+
+    function setPanelCollapsed(panel, collapsed) {
+      panel.classList.toggle("is-collapsed", collapsed);
+      const button = panel.querySelector(".collapse-toggle");
+      if (button) {
+        button.setAttribute("aria-expanded", String(!collapsed));
+        button.title = collapsed ? "Espandi sezione" : "Comprimi sezione";
+        button.setAttribute("aria-label", button.title);
+      }
+      const key = panel.dataset.collapseKey;
+      if (key) localStorage.setItem(collapseStorageKey(key), collapsed ? "1" : "0");
+    }
+
+    function initCollapsiblePanels() {
+      $$(".panel[data-collapse-key]").forEach((panel) => {
+        const collapsed = localStorage.getItem(collapseStorageKey(panel.dataset.collapseKey)) === "1";
+        setPanelCollapsed(panel, collapsed);
+      });
+    }
+
+    function normalizeFolder(value, fallback) {
+      return String(value || "").trim().replace(/\\/g, "/").replace(/^\/+/, "").replace(/\/+$/, "") || fallback;
+    }
+
+    function saveFolderState() {
+      localStorage.setItem("stock-platform-fundamentals-dir", state.folders.fundamentals);
+      localStorage.setItem("stock-platform-ranking-dir", state.folders.ranking);
+      localStorage.setItem("stock-platform-config-dir", state.folders.config);
+      localStorage.setItem("stock-platform-config-include-subdirs", state.configIncludeSubdirs ? "1" : "0");
+    }
+
+    function hydrateFolderControls() {
+      $("#fundamentalsDir").value = state.folders.fundamentals;
+      $("#rankingDir").value = state.folders.ranking;
+      $("#configDir").value = state.folders.config;
+      $("#configIncludeSubdirs").checked = state.configIncludeSubdirs;
+      updateOutputPlaceholders();
+    }
+
+    function folderQuery() {
+      const params = new URLSearchParams();
+      params.set("fundamentalsDir", state.folders.fundamentals);
+      params.set("rankingDir", state.folders.ranking);
+      params.set("configDir", state.folders.config);
+      params.set("configIncludeSubdirs", state.configIncludeSubdirs ? "1" : "0");
+      return params.toString();
+    }
+
+    function configQuery() {
+      const params = new URLSearchParams();
+      params.set("configDir", state.folders.config);
+      params.set("configIncludeSubdirs", state.configIncludeSubdirs ? "1" : "0");
+      return params.toString();
+    }
+
+    function selectedFolderForCategory(category) {
+      return category === "fundamentals" ? state.folders.fundamentals : state.folders.ranking;
+    }
+
+    async function applyFolderControls() {
+      state.folders.fundamentals = normalizeFolder($("#fundamentalsDir").value, DEFAULT_FUNDAMENTALS_DIR);
+      state.folders.ranking = normalizeFolder($("#rankingDir").value, DEFAULT_RANKING_DIR);
+      state.folders.config = normalizeFolder($("#configDir").value, DEFAULT_CONFIG_DIR);
+      state.configIncludeSubdirs = $("#configIncludeSubdirs").checked;
+      saveFolderState();
+      hydrateFolderControls();
+      try {
+        await Promise.all([loadFiles(), loadConfigs()]);
+        const rankingPaths = new Set((state.files?.fitnessCsv || []).map((file) => file.path));
+        if (state.csv.path && !rankingPaths.has(state.csv.path)) clearLoadedCsv();
+        showToast("Cartelle aggiornate");
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function folderDialogTitle(targetId) {
+      if (targetId === "fundamentalsDir") return "Scegli cartella fondamentali";
+      if (targetId === "rankingDir") return "Scegli cartella ranking";
+      return "Scegli cartella config";
+    }
+
+    async function openFolderDialog(targetId) {
+      state.folderDialog.targetId = targetId;
+      $("#folderDialogTitle").textContent = folderDialogTitle(targetId);
+      $("#folderDialog").hidden = false;
+      const current = normalizeFolder($(`#${targetId}`).value, "");
+      try {
+        await loadFolderDialog(current);
+      } catch (error) {
+        await loadFolderDialog("");
+      }
+    }
+
+    function closeFolderDialog() {
+      $("#folderDialog").hidden = true;
+      state.folderDialog.targetId = "";
+      state.folderDialog.path = "";
+    }
+
+    async function loadFolderDialog(path) {
+      const params = new URLSearchParams();
+      if (path) params.set("path", path);
+      const payload = await api(`/api/directories?${params.toString()}`);
+      state.folderDialog.path = payload.path || "";
+      $("#folderDialogPath").textContent = payload.path ? payload.path : "/";
+      $("#folderDialogUp").disabled = payload.parent === null;
+      $("#folderDialogSelect").disabled = !payload.path;
+      $("#folderDialogUp").dataset.parentPath = payload.parent ?? "";
+      $("#folderDialogList").innerHTML = payload.dirs.length ? payload.dirs.map((dir) => `
+        <button class="directory-row" type="button" data-folder-path="${escapeHtml(dir.path)}">
+          <span aria-hidden="true">[dir]</span>
+          <span>${escapeHtml(dir.name)}</span>
+        </button>
+      `).join("") : `<div class="empty">Nessuna sottocartella.</div>`;
+    }
+
+    function selectFolderFromDialog() {
+      const targetId = state.folderDialog.targetId;
+      if (!targetId || !state.folderDialog.path) return;
+      $(`#${targetId}`).value = state.folderDialog.path;
+      closeFolderDialog();
+      applyFolderControls();
+    }
+
+    function clearLoadedCsv() {
+      state.csv.path = "";
+      state.csv.columns = [];
+      state.csv.rows = [];
+      state.csv.filtered = [];
+      state.csv.page = 1;
+      state.csv.sortColumn = "";
+      state.csv.sortDir = "desc";
+      state.csv.visibleColumns = new Set();
+      state.csv.frozenColumns = new Set();
+      state.csv.columnPreset = "core";
+      $("#tableInfo").textContent = "Nessun CSV caricato.";
+      $("#pageBadge").textContent = "1 / 1";
+      $("#rankTable thead").innerHTML = "";
+      $("#rankTable tbody").innerHTML = `<tr><td>Carica un CSV per iniziare.</td></tr>`;
+      renderColumnChooser();
+      renderCsvStats();
+    }
+
+    async function loadFiles() {
+      state.files = await api(`/api/files?${folderQuery()}`);
+      state.folders.fundamentals = state.files.fundamentalsDir || state.folders.fundamentals;
+      state.folders.ranking = state.files.rankingDir || state.folders.ranking;
+      state.folders.config = state.files.configDir || state.folders.config;
+      state.configIncludeSubdirs = Boolean(state.files.configIncludeSubdirs);
+      saveFolderState();
+      hydrateFolderControls();
+      renderFolderSuggestions(state.files.directorySuggestions || []);
+      $("#rootLabel").textContent = state.files.rootDir;
+      hydrateFileControls();
+    }
+
+    function renderFolderSuggestions(dirs) {
+      const datalist = $("#folderSuggestions");
+      if (!datalist) return;
+      const paths = new Set([
+        DEFAULT_FUNDAMENTALS_DIR,
+        DEFAULT_RANKING_DIR,
+        DEFAULT_CONFIG_DIR,
+        ...dirs.map((dir) => dir.path).filter(Boolean)
+      ]);
+      datalist.innerHTML = [...paths].sort((a, b) => a.localeCompare(b)).map((path) =>
+        `<option value="${escapeHtml(path)}"></option>`
+      ).join("");
+    }
+
+    function hydrateFileControls() {
+      const fundamentalsCsv = state.files?.fundamentalsCsv || [];
+      const fitnessCsv = state.files?.fitnessCsv || [];
+      const configFiles = state.files?.configFiles || [];
+      const configDirs = state.files?.configDirs || [];
+      const fundamentalsOptions = fundamentalsCsv;
+      const fitnessOptions = fitnessCsv;
+
+      fillSelect($("[name=input]", $("#fitnessForm")), fundamentalsOptions.map((file) => [file.path, file.path]), "Nessun CSV fondamentali trovato");
+      const configs = [
+        ...configDirs.map((dir) => [dir.path, `${dir.path}/ (${dir.jsonCount} JSON)`]),
+        ...configFiles.map((file) => [file.path, file.path])
+      ];
+      fillSelect($("[name=config]", $("#fitnessForm")), configs, "Nessuna config trovata");
+      fillSelect($("#csvSelect"), fitnessOptions.map((file) => [file.path, `${file.path} (${formatBytes(file.size)})`]), "Nessun CSV score trovato");
+
+      const preferred = choosePreferredCsv(fitnessOptions);
+      if (preferred && !$("#csvSelect").value) $("#csvSelect").value = preferred.path;
+      const preferredFundamentals = choosePreferredFundamentalsCsv(fundamentalsOptions);
+      if (preferredFundamentals && !$("[name=input]", $("#fitnessForm")).value) {
+        $("[name=input]", $("#fitnessForm")).value = preferredFundamentals.path;
+      }
+      updateOutputPlaceholders();
+      renderOutputFolders();
+      $("#fitnessHint").textContent = `${fundamentalsOptions.length} CSV fondamentali, ${configs.length} config disponibili`;
+    }
+
+    function fillSelect(select, options, emptyLabel) {
+      const previous = select.value;
+      select.innerHTML = "";
+      if (!options.length) {
+        select.innerHTML = `<option value="">${escapeHtml(emptyLabel)}</option>`;
+        return;
+      }
+      for (const [value, label] of options) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+      if (previous && options.some(([value]) => value === previous)) {
+        select.value = previous;
+      }
+    }
+
+    function choosePreferredCsv(files) {
+      if (!files.length) return null;
+      const sorted = [...files].sort((a, b) => b.modified - a.modified);
+      return sorted.find((file) => /fitness|score/i.test(file.name)) || sorted[0];
+    }
+
+    function choosePreferredFundamentalsCsv(files) {
+      if (!files.length) return null;
+      const sorted = [...files].sort((a, b) => b.modified - a.modified);
+      return sorted.find((file) => /all_markets|fundamental|deep/i.test(file.name)) || sorted[0];
+    }
+
+    function updateOutputPlaceholders() {
+      const fundamentalsForm = $("#fundamentalsForm");
+      const market = $("[name=market]", fundamentalsForm)?.value || "all";
+      const format = $("[name=format]", fundamentalsForm)?.value || "csv";
+      const suffix = format === "jsonl" ? "jsonl" : format === "json" ? "json" : "csv";
+      $("[name=output]", fundamentalsForm).placeholder = `${state.folders.fundamentals}/fundamentals_${market}_YYYYMMDD.${suffix}`;
+      updateFitnessOutputSuggestion();
+    }
+
+    function updateFitnessOutputSuggestion() {
+      const input = $("[name=input]", $("#fitnessForm")).value;
+      const output = $("[name=output]", $("#fitnessForm"));
+      if (!input) {
+        output.placeholder = `${state.folders.ranking}/input_fitness.csv`;
+        return;
+      }
+      const base = fileName(input).replace(/\.csv$/i, "");
+      output.placeholder = `${state.folders.ranking}/${base}_fitness.csv`;
+    }
+
+    function renderOutputFolders() {
+      const container = $("#outputFolders");
+      if (!container) return;
+      const folders = state.files?.outputFolders || [];
+      container.innerHTML = folders.map((folder) => {
+        const label = folder.category === "fundamentals" ? "Fondamentali" : "Ranking";
+        return `
+          <article class="folder-card">
+            <div>
+              <strong>${label}</strong>
+              <div class="subtle"><code>${escapeHtml(folder.path)}</code></div>
+            </div>
+            <div class="stat-grid">
+              <div class="stat"><span>File</span><strong>${folder.fileCount}</strong></div>
+              <div class="stat"><span>Spazio</span><strong>${formatBytes(folder.size)}</strong></div>
+            </div>
+            <div class="cleanup-row">
+              <label>Vecchi di giorni
+                <input type="number" min="0" max="3650" value="30" data-cleanup-days="${folder.category}">
+              </label>
+              <button class="warn" type="button" data-cleanup-category="${folder.category}">Pulisci</button>
+            </div>
+          </article>
+        `;
+      }).join("") || `<div class="empty">Cartelle output non disponibili.</div>`;
+    }
+
+    async function submitFundamentals(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const payload = {
+        type: "fundamentals",
+        market: formData.get("market"),
+        format: formData.get("format"),
+        output: formData.get("output"),
+        limit: formData.get("limit"),
+        workers: formData.get("workers"),
+        retries: formData.get("retries"),
+        retrySleep: formData.get("retrySleep"),
+        fundamentalsDir: state.folders.fundamentals
+      };
+      for (const checkbox of $$("input[type=checkbox]", form)) {
+        payload[checkbox.name] = checkbox.checked;
+      }
+      await createJob(payload);
+    }
+
+    async function submitFitness(event) {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      await createJob({
+        type: "fitness",
+        input: formData.get("input"),
+        config: formData.get("config"),
+        output: formData.get("output"),
+        fundamentalsDir: state.folders.fundamentals,
+        configDir: state.folders.config,
+        configIncludeSubdirs: state.configIncludeSubdirs,
+        rankingDir: state.folders.ranking
+      });
+    }
+
+    async function createJob(payload) {
+      try {
+        const result = await api("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        state.selectedJobId = result.job.id;
+        showToast("Job avviato");
+        await loadJobs(true);
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    async function cleanupOutputFolder(category) {
+      const input = document.querySelector(`[data-cleanup-days="${category}"]`);
+      const olderThanDays = Math.max(0, Math.floor(parseNumber(input?.value) ?? 30));
+      const label = category === "fundamentals" ? "fondamentali" : "ranking";
+      const folder = selectedFolderForCategory(category);
+      try {
+        const preview = await api("/api/cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category, olderThanDays, dryRun: true, folder })
+        });
+        const result = preview.cleanup;
+        if (!result.count) {
+          showToast(`Nessun file ${label} da pulire`);
+          return;
+        }
+        const confirmed = window.confirm(`Cancellare ${result.count} file ${label} vecchi di almeno ${olderThanDays} giorni (${formatBytes(result.size)}) da ${result.folder}?`);
+        if (!confirmed) return;
+        const deleted = await api("/api/cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category, olderThanDays, dryRun: false, folder })
+        });
+        showToast(`Pulizia completata: ${deleted.cleanup.deleted} file cancellati`);
+        await loadFiles();
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    async function loadJobs(forceDetail = false) {
+      try {
+        const previousStatuses = { ...state.jobStatuses };
+        const payload = await api("/api/jobs");
+        state.jobs = payload.jobs || [];
+        state.jobStatuses = Object.fromEntries(state.jobs.map((job) => [job.id, job.status]));
+        const activeJobs = state.jobs.filter(isActiveJob);
+        $("#jobPulse").textContent = `Job attivi: ${activeJobs.length}`;
+        if (state.selectedJobId && !state.jobs.some((job) => job.id === state.selectedJobId)) {
+          state.selectedJobId = null;
+        }
+        if (state.selectedJobId && !forceDetail && !activeJobs.some((job) => job.id === state.selectedJobId)) {
+          state.selectedJobId = activeJobs[0]?.id || null;
+        }
+        if (!state.selectedJobId && activeJobs[0]) state.selectedJobId = activeJobs[0].id;
+        renderJobs();
+        const active = activeJobs[0];
+        if (forceDetail || active || state.selectedJobId) await renderSelectedJob();
+        else clearSelectedJobDetail(activeJobs.length ? "Seleziona un job per vedere log e comando." : "Nessun job attivo.");
+        const terminalNow = state.jobs.some((job) => {
+          const before = previousStatuses[job.id];
+          return before && !TERMINAL_JOB_STATUSES.has(before) && TERMINAL_JOB_STATUSES.has(job.status);
+        });
+        if (terminalNow) {
+          loadFiles().catch(() => {});
+        }
+      } catch (error) {
+        $("#jobPulse").textContent = "Job: errore";
+      }
+    }
+
+    function isActiveJob(job) {
+      return ACTIVE_JOB_STATUSES.has(job.status);
+    }
+
+    function clearSelectedJobDetail(message = "Avvia uno script per vedere qui log e comando.") {
+      state.selectedJobId = null;
+      $("#jobTitle").textContent = "Nessun job selezionato";
+      $("#jobMeta").textContent = message;
+      $("#jobLog").textContent = "Log vuoto.";
+      $("#cancelJob").disabled = true;
+      $("#cancelJob").dataset.jobId = "";
+      renderJobs();
+    }
+
+    function jobCardHtml(job) {
+      return `
+        <article class="job-card ${job.id === state.selectedJobId ? "active" : ""}" data-job-id="${job.id}">
+          <div class="status-row">
+            <span class="badge ${job.status}">${job.status}</span>
+            <span>${job.progress || 0}%</span>
+          </div>
+          <h3>${escapeHtml(job.label)}</h3>
+          <div class="progress"><span style="width:${Number(job.progress || 0)}%"></span></div>
+          <div class="subtle">${escapeHtml(job.updatedAt || job.createdAt || "")}</div>
+        </article>
+      `;
+    }
+
+    function renderJobs() {
+      const list = $("#jobList");
+      const activeJobs = state.jobs.filter(isActiveJob);
+      const terminalJobs = state.jobs.filter((job) => !isActiveJob(job));
+      if (!activeJobs.length && !terminalJobs.length) {
+        list.innerHTML = `<div class="empty">Nessun job lanciato in questa sessione.</div>`;
+        return;
+      }
+      const activeHtml = activeJobs.length
+        ? activeJobs.map(jobCardHtml).join("")
+        : `<div class="empty">Nessun job attivo.</div>`;
+      const historyHtml = terminalJobs.length ? `
+        <details class="job-history">
+          <summary>Storico conclusi (${terminalJobs.length})</summary>
+          <div class="job-history-list">${terminalJobs.map(jobCardHtml).join("")}</div>
+        </details>
+      ` : "";
+      list.innerHTML = `${activeHtml}${historyHtml}`;
+    }
+
+    async function renderSelectedJob() {
+      if (!state.selectedJobId) {
+        clearSelectedJobDetail();
+        return;
+      }
+      const detail = await api(`/api/jobs/${state.selectedJobId}`);
+      const job = detail.job;
+      if (!job) {
+        clearSelectedJobDetail("Job non trovato.");
+        return;
+      }
+      $("#jobTitle").textContent = job.label;
+      $("#jobMeta").textContent = `${job.status} | ${job.command}`;
+      $("#jobLog").textContent = (job.logs || []).join("\n") || "Log vuoto.";
+      $("#cancelJob").disabled = !isActiveJob(job);
+      $("#cancelJob").dataset.jobId = job.id;
+      renderJobs();
+    }
+
+    async function cancelSelectedJob() {
+      const jobId = $("#cancelJob").dataset.jobId;
+      if (!jobId) return;
+      try {
+        await api(`/api/jobs/${jobId}`, { method: "DELETE" });
+        showToast("Cancellazione richiesta");
+        await loadJobs(true);
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    async function loadConfigs() {
+      const payload = await api(`/api/configs?${configQuery()}`);
+      state.folders.config = payload.configDir || state.folders.config;
+      state.configIncludeSubdirs = Boolean(payload.configIncludeSubdirs);
+      saveFolderState();
+      hydrateFolderControls();
+      $("#configFolderHint").textContent = state.configIncludeSubdirs
+        ? `JSON letti da ${state.folders.config} e sottocartelle.`
+        : `JSON letti solo dalla root ${state.folders.config}.`;
+      renderFolderSuggestions(payload.directorySuggestions || state.files?.directorySuggestions || []);
+      state.configs = payload.files || [];
+      if (state.activeConfigPath && !state.configs.some((file) => file.path === state.activeConfigPath)) {
+        state.activeConfigPath = null;
+        $("#configDetail").innerHTML = `<div class="empty">Seleziona un JSON di scoring.</div>`;
+      }
+      renderConfigList();
+      if (!state.activeConfigPath && state.configs[0]) {
+        state.activeConfigPath = state.configs[0].path;
+        await loadConfigDetail(state.activeConfigPath);
+      }
+    }
+
+    function renderConfigList() {
+      const query = $("#configSearch").value.trim().toLowerCase();
+      const files = state.configs.filter((file) => !query || file.name.toLowerCase().includes(query) || file.path.toLowerCase().includes(query));
+      $("#configList").innerHTML = files.length ? files.map((file) => `
+        <button class="file-button ${file.path === state.activeConfigPath ? "active" : ""}" data-config-path="${escapeHtml(file.path)}" type="button">
+          <span class="file-title">
+            <strong title="${escapeHtml(file.path)}">${escapeHtml(file.name)}</strong>
+            <span class="file-meta" title="${formatDate(file.modified)}">${formatBytes(file.size)} | ${compactDate(file.modified)}</span>
+          </span>
+        </button>
+      `).join("") : `<div class="empty">Nessuna config trovata.</div>`;
+    }
+
+    async function loadConfigDetail(path) {
+      try {
+        const params = new URLSearchParams({
+          path,
+          configDir: state.folders.config,
+          configIncludeSubdirs: state.configIncludeSubdirs ? "1" : "0"
+        });
+        const payload = await api(`/api/config?${params.toString()}`);
+        state.activeConfigPath = path;
+        renderConfigList();
+        renderConfigDetail(payload.path, payload.payload);
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function normalizeRules(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.scores)) return payload.scores;
+      return [];
+    }
+
+    function renderConfigDetail(path, payload) {
+      const rules = normalizeRules(payload);
+      const sectors = payload && !Array.isArray(payload) ? payload.sectors || [] : [""];
+      const industries = payload && !Array.isArray(payload) ? payload.industries || [] : [];
+      const totalWeight = rules.reduce((sum, rule) => sum + (parseNumber(rule.weight) || 0), 0);
+      const totalPenalty = rules.reduce((sum, rule) => sum + (parseNumber(rule.penalty ?? rule.penality) || 0), 0);
+      const rows = rules.map((rule) => {
+        const points = Array.isArray(rule.points) ? rule.points : [];
+        return `
+          <tr>
+            <td><strong>${escapeHtml(rule.field)}</strong></td>
+            <td>${escapeHtml(rule.weight)}</td>
+            <td>${escapeHtml(rule.prefactor)}</td>
+            <td>${escapeHtml(rule.penalty ?? rule.penality ?? "")}</td>
+            <td>${points.map((point) => `[${point[0]}, ${point[1]}]`).join(" ")}</td>
+            <td>${metricChart(points)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      $("#configDetail").innerHTML = `
+        <div class="tools-bar">
+          <div>
+            <h3>${escapeHtml(fileName(path))}</h3>
+            <div class="subtle">${escapeHtml(path)}</div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><span>Settori</span><strong>${sectors.length}</strong></div>
+          <div class="stat"><span>Industrie</span><strong>${industries.length}</strong></div>
+          <div class="stat"><span>Regole</span><strong>${rules.length}</strong></div>
+          <div class="stat"><span>Peso / penalty</span><strong>${niceNumber(totalWeight)} / ${niceNumber(totalPenalty)}</strong></div>
+        </div>
+        <div class="grid-2">
+          <div class="stat"><span>Settori coperti</span><strong style="font-size:13px;">${escapeHtml(sectors.map((item) => item || "fallback").join(", ") || "Nessuno")}</strong></div>
+          <div class="stat"><span>Industrie coperte</span><strong style="font-size:13px;">${escapeHtml(industries.join(", ") || "Nessuna")}</strong></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Campo</th><th>Peso</th><th>Prefactor</th><th>Penalty</th><th>Punti</th><th>Curva</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="6">Nessuna regola.</td></tr>`}</tbody>
+          </table>
+        </div>
+        <details>
+          <summary>JSON raw</summary>
+          <pre class="json-box">${escapeHtml(JSON.stringify(payload, null, 2))}</pre>
+        </details>
+      `;
+    }
+
+    function metricChart(points) {
+      const clean = points.map((point) => [parseNumber(point[0]), parseNumber(point[1])])
+        .filter(([x, y]) => x !== null && y !== null)
+        .sort((a, b) => a[0] - b[0]);
+      if (clean.length < 2) return "";
+      const xs = clean.map((point) => point[0]);
+      const ys = clean.map((point) => point[1]);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys, 0);
+      const maxY = Math.max(...ys, 10);
+      const width = 150;
+      const height = 52;
+      const pad = 5;
+      const xScale = (x) => pad + ((x - minX) / ((maxX - minX) || 1)) * (width - pad * 2);
+      const yScale = (y) => height - pad - ((y - minY) / ((maxY - minY) || 1)) * (height - pad * 2);
+      const line = clean.map(([x, y]) => `${xScale(x)},${yScale(y)}`).join(" ");
+      const dots = clean.map(([x, y]) => `<circle cx="${xScale(x)}" cy="${yScale(y)}" r="2.3" fill="#bf5b04"></circle>`).join("");
+      return `<svg class="metric-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Curva scoring">
+        <rect x="0" y="0" width="${width}" height="${height}" rx="6" fill="#f3f7f5"></rect>
+        <polyline fill="none" stroke="#0f766e" stroke-width="2" points="${line}"></polyline>
+        ${dots}
+      </svg>`;
+    }
+
+    async function loadSelectedCsv() {
+      const path = $("#csvSelect").value;
+      if (!path) return;
+      try {
+        $("#tableInfo").textContent = "Caricamento CSV...";
+        const params = new URLSearchParams({ path, rankingDir: state.folders.ranking });
+        const response = await fetch(`/api/csv?${params.toString()}`);
+        if (!response.ok) throw new Error(`Errore HTTP ${response.status}`);
+        const text = await response.text();
+        const parsed = parseCsv(text);
+        state.csv.path = path;
+        state.csv.columns = parsed.columns;
+        state.csv.rows = parsed.rows.map((row, index) => ({ ...row, __index: index }));
+        state.csv.page = 1;
+        state.csv.sortColumn = chooseScoreColumn(state.csv.columns) || state.csv.columns[0] || "";
+        state.csv.sortDir = "desc";
+        state.csv.columnPreset = "core";
+        state.csv.visibleColumns = new Set(presetColumns(state.csv.columns, state.csv.columnPreset));
+        state.csv.frozenColumns = defaultFrozenColumns(state.csv.columns);
+        state.basket = [];
+        hydrateCsvControls();
+        applyFilters();
+        setBasketStatus(`CSV caricato: ${state.csv.rows.length} righe. Basket svuotato per evitare mix tra dataset.`);
+        showToast(`CSV caricato: ${state.csv.rows.length} righe`);
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let field = "";
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        const next = text[i + 1];
+        if (inQuotes) {
+          if (char === '"' && next === '"') {
+            field += '"';
+            i += 1;
+          } else if (char === '"') {
+            inQuotes = false;
+          } else {
+            field += char;
+          }
+          continue;
+        }
+        if (char === '"') {
+          inQuotes = true;
+        } else if (char === ",") {
+          row.push(field);
+          field = "";
+        } else if (char === "\n") {
+          row.push(field);
+          rows.push(row);
+          row = [];
+          field = "";
+        } else if (char !== "\r") {
+          field += char;
+        }
+      }
+      if (field || row.length) {
+        row.push(field);
+        rows.push(row);
+      }
+      const columns = (rows.shift() || []).map((column) => column.trim());
+      const data = rows
+        .filter((items) => items.some((item) => String(item || "").trim()))
+        .map((items) => {
+          const record = {};
+          columns.forEach((column, index) => {
+            record[column] = items[index] ?? "";
+          });
+          return record;
+        });
+      return { columns, rows: data };
+    }
+
+    function chooseScoreColumn(columns) {
+      return columns.find((column) => column === "fitness_score")
+        || columns.find((column) => column === "weighted_score_before_penalty")
+        || columns.find((column) => /score/i.test(column));
+    }
+
+    function scoreColumns(columns) {
+      return columns.filter((column) =>
+        column === "fitness_score"
+        || column === "weighted_score_before_penalty"
+        || column.endsWith("_score")
+      );
+    }
+
+    function metricScoreColumns() {
+      return state.csv.columns.filter((column) =>
+        column.endsWith("_score")
+        && !["fitness_score", "weighted_score_before_penalty"].includes(column)
+      );
+    }
+
+    function marketCapColumnName() {
+      const candidates = ["market_cap", "intradaymarketcap", "marketCap", "marketcap"];
+      return candidates.find((column) => state.csv.columns.includes(column)) || "";
+    }
+
+    function marketCapEur(row) {
+      const column = marketCapColumnName();
+      if (!column) return null;
+      return cashAmountToEuro(row[column], rowCurrency(row));
+    }
+
+    function presetColumns(columns, preset = state.csv.columnPreset) {
+      if (preset === "all") return [...columns];
+      const base = COLUMN_PRESETS[preset] || COLUMN_PRESETS.core;
+      const scoreMetrics = preset === "scores"
+        ? metricScoreColumns().slice(0, 10)
+        : columns.filter((column) => column.endsWith("_score") && column !== "fitness_score").slice(0, 5);
+      const defaults = [...base, ...scoreMetrics].filter((column) => columns.includes(column));
+      return defaults.length ? defaults : columns.slice(0, 12);
+    }
+
+    function defaultColumns(columns) {
+      return presetColumns(columns, "core");
+    }
+
+    function defaultFrozenColumns(columns) {
+      const preferred = ["name", "symbol", "yahoo_symbol"];
+      const first = preferred.find((column) => columns.includes(column));
+      return new Set(first ? [first] : []);
+    }
+
+    function hydrateCsvControls() {
+      const columns = state.csv.columns;
+      const scoreOptions = scoreColumns(columns).map((column) => [column, column]);
+      fillSelect($("#scoreColumn"), scoreOptions, "Nessuna colonna score");
+      $("#scoreColumn").value = state.csv.sortColumn || chooseScoreColumn(columns) || "";
+      $("#columnPreset").value = state.csv.columnPreset;
+
+      const sectors = uniqueValues("sector");
+      const countries = uniqueValues("country");
+      fillSelectWithAll($("#sectorFilter"), sectors, "Tutti");
+      fillSelectWithAll($("#countryFilter"), countries, "Tutti");
+      renderColumnChooser();
+      renderCsvStats();
+    }
+
+    function uniqueValues(column) {
+      if (!state.csv.columns.includes(column)) return [];
+      const values = new Set();
+      state.csv.rows.forEach((row) => {
+        const value = String(row[column] || "").trim();
+        if (value) values.add(value);
+      });
+      return [...values].sort((a, b) => a.localeCompare(b));
+    }
+
+    function fillSelectWithAll(select, values, allLabel) {
+      const previous = select.value;
+      select.innerHTML = `<option value="">${allLabel}</option>`;
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+      if (previous && values.includes(previous)) select.value = previous;
+    }
+
+    function renderColumnChooser() {
+      $("#columnChooser").innerHTML = state.csv.columns.map((column) => `
+        <label class="check"><input type="checkbox" data-column="${escapeHtml(column)}" ${state.csv.visibleColumns.has(column) ? "checked" : ""}>${escapeHtml(column)}</label>
+      `).join("");
+    }
+
+    function renderCsvStats() {
+      const rows = state.csv.rows;
+      const scoreColumn = $("#scoreColumn").value || chooseScoreColumn(state.csv.columns);
+      const scores = rows.map((row) => parseNumber(row[scoreColumn])).filter((number) => number !== null);
+      const avg = scores.length ? scores.reduce((sum, number) => sum + number, 0) / scores.length : null;
+      const sectors = uniqueValues("sector").length;
+      const countries = uniqueValues("country").length;
+      $("#csvStats").innerHTML = `
+        <div class="stat"><span>Righe</span><strong>${rows.length}</strong></div>
+        <div class="stat"><span>Colonne</span><strong>${state.csv.columns.length}</strong></div>
+        <div class="stat"><span>Score medio</span><strong>${avg === null ? "-" : niceNumber(avg)}</strong></div>
+        <div class="stat"><span>Settori / Paesi</span><strong>${sectors} / ${countries}</strong></div>
+      `;
+    }
+
+    function applyFilters() {
+      const query = $("#globalSearch").value.trim().toLowerCase();
+      const sector = $("#sectorFilter").value;
+      const country = $("#countryFilter").value;
+      const scoreColumn = $("#scoreColumn").value;
+      const minScore = parseNumber($("#minScore").value);
+      const minComplete = parseNumber($("#minComplete").value);
+      const marketCapMin = parseNumber($("#marketCapMin").value);
+      const marketCapMax = parseNumber($("#marketCapMax").value);
+
+      let rows = state.csv.rows.filter((row) => {
+        if (sector && row.sector !== sector) return false;
+        if (country && row.country !== country) return false;
+        const scoreValue = parseNumber(row[scoreColumn]);
+        const completeValue = parseNumber(row.valid_score_weight_pct);
+        const capValue = marketCapEur(row);
+        if (minScore !== null && (scoreValue === null || scoreValue < minScore)) return false;
+        if (minComplete !== null && (completeValue === null || completeValue < minComplete)) return false;
+        if (marketCapMin !== null && (capValue === null || capValue < marketCapMin)) return false;
+        if (marketCapMax !== null && (capValue === null || capValue > marketCapMax)) return false;
+        if (query) {
+          const haystack = state.csv.columns.map((column) => row[column]).join(" ").toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
+      });
+
+      const sortColumn = state.csv.sortColumn || scoreColumn || state.csv.columns[0];
+      const direction = state.csv.sortDir === "asc" ? 1 : -1;
+      rows.sort((a, b) => {
+        const aNumber = parseNumber(a[sortColumn]);
+        const bNumber = parseNumber(b[sortColumn]);
+        if (aNumber !== null && bNumber !== null) return (aNumber - bNumber) * direction;
+        return String(a[sortColumn] || "").localeCompare(String(b[sortColumn] || "")) * direction;
+      });
+
+      state.csv.filtered = rows;
+      const pageCount = Math.max(1, Math.ceil(rows.length / state.csv.pageSize));
+      if (state.csv.page > pageCount) state.csv.page = pageCount;
+      renderTable();
+      renderCsvStats();
+      renderBasket();
+    }
+
+    function renderTable() {
+      const table = $("#rankTable");
+      const columns = [...state.csv.visibleColumns].filter((column) => state.csv.columns.includes(column));
+      const pageCount = Math.max(1, Math.ceil(state.csv.filtered.length / state.csv.pageSize));
+      const start = (state.csv.page - 1) * state.csv.pageSize;
+      const pageRows = state.csv.filtered.slice(start, start + state.csv.pageSize);
+      $("#tableInfo").textContent = `${state.csv.filtered.length} righe filtrate su ${state.csv.rows.length}`;
+      $("#pageBadge").textContent = `${state.csv.page} / ${pageCount}`;
+      $("#prevPage").disabled = state.csv.page <= 1;
+      $("#nextPage").disabled = state.csv.page >= pageCount;
+
+      if (!state.csv.columns.length) {
+        table.querySelector("thead").innerHTML = "";
+        table.querySelector("tbody").innerHTML = `<tr><td>Carica un CSV per iniziare.</td></tr>`;
+        return;
+      }
+
+      table.querySelector("thead").innerHTML = `
+        <tr>
+          <th data-sort="__action">Basket</th>
+          ${columns.map((column) => `
+            <th data-sort="${escapeHtml(column)}" data-column="${escapeHtml(column)}">
+              <span class="th-inner">
+                <button class="pin-button ${state.csv.frozenColumns.has(column) ? "is-active" : ""}" type="button" data-pin-column="${escapeHtml(column)}" title="${state.csv.frozenColumns.has(column) ? "Sblocca colonna" : "Blocca colonna"}" aria-label="${state.csv.frozenColumns.has(column) ? "Sblocca colonna" : "Blocca colonna"}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"></path><path d="M5 17h14"></path><path d="m15 3 6 6-4 4 .5 3.5-10-10 3.5.5 4-4Z"></path></svg>
+                </button>
+                <span>${escapeHtml(column)}${state.csv.sortColumn === column ? (state.csv.sortDir === "asc" ? " ^" : " v") : ""}</span>
+              </span>
+            </th>
+          `).join("")}
+        </tr>
+      `;
+      table.querySelector("tbody").innerHTML = pageRows.map((row) => `
+        <tr data-row-index="${row.__index}">
+          <td><button type="button" data-add-index="${row.__index}">Add</button></td>
+          ${columns.map((column) => `<td data-column="${escapeHtml(column)}" title="${escapeHtml(row[column])}">${cellHtml(row, column)}</td>`).join("")}
+        </tr>
+      `).join("");
+      applyStickyColumns();
+    }
+
+    function isScoreDisplayColumn(column) {
+      return column === "fitness_score" || column === "weighted_score_before_penalty" || column.endsWith("_score");
+    }
+
+    function scoreColor(value) {
+      if (value >= 7.5) return "#17803c";
+      if (value >= 6) return "#0f766e";
+      if (value >= 4) return "#bf8a00";
+      return "#b42318";
+    }
+
+    function scoreBarHtml(value) {
+      const pct = Math.max(0, Math.min(100, value <= 1 ? value * 100 : value <= 10 ? value * 10 : value));
+      return `
+        <span class="score-cell">
+          <span class="score-value">${escapeHtml(niceNumber(value))}</span>
+          <span class="score-bar" aria-hidden="true"><span style="--score-width: ${pct}%; --score-color: ${scoreColor(value)};"></span></span>
+        </span>
+      `;
+    }
+
+    function cellHtml(row, column) {
+      const value = row[column];
+      const number = parseNumber(value);
+      if (isScoreDisplayColumn(column) && number !== null) return scoreBarHtml(number);
+      return escapeHtml(value);
+    }
+
+    function applyStickyColumns() {
+      const table = $("#rankTable");
+      table.querySelectorAll(".sticky-column").forEach((cell) => {
+        cell.classList.remove("sticky-column");
+        cell.style.removeProperty("--sticky-left");
+      });
+      const columns = [...state.csv.visibleColumns].filter((column) =>
+        state.csv.columns.includes(column) && state.csv.frozenColumns.has(column)
+      );
+      let left = 0;
+      for (const column of columns) {
+        const header = table.querySelector(`th[data-column="${cssEscape(column)}"]`);
+        if (!header) continue;
+        const cells = [header, ...table.querySelectorAll(`td[data-column="${cssEscape(column)}"]`)];
+        cells.forEach((cell) => {
+          cell.classList.add("sticky-column");
+          cell.style.setProperty("--sticky-left", `${left}px`);
+        });
+        left += header.getBoundingClientRect().width;
+      }
+    }
+
+    function cssEscape(value) {
+      if (window.CSS && typeof CSS.escape === "function") return CSS.escape(value);
+      return String(value).replace(/["\\]/g, "\\$&");
+    }
+
+    function scrollRankTable(direction) {
+      const wrap = $("#rankTable").closest(".table-wrap");
+      const amount = Math.max(220, Math.floor(wrap.clientWidth * 0.72));
+      wrap.scrollBy({ left: direction * amount, behavior: "smooth" });
+    }
+
+    function addRowToBasket(index) {
+      const row = state.csv.rows.find((item) => item.__index === Number(index));
+      if (!row) return;
+      const key = rowKey(row);
+      if (state.basket.some((item) => item.key === key)) {
+        showToast("Azienda gia nel basket");
+        return;
+      }
+      state.basket.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        key,
+        row,
+        qty: 0,
+        price: guessPrice(row)
+      });
+      setBasketStatus(`Aggiunta ${row.name || row.symbol || row.yahoo_symbol || "riga selezionata"} al basket.`);
+      renderBasket();
+    }
+
+    function rowKey(row) {
+      return [row.yahoo_symbol, row.symbol, row.name].filter(Boolean).join("|") || String(row.__index);
+    }
+
+    function guessPrice(row) {
+      const candidates = ["current_price", "regular_market_price", "price", "last_price", "close"];
+      for (const column of candidates) {
+        const value = parseNumber(row[column]);
+        if (value !== null && value > 0) return value;
+      }
+      return 0;
+    }
+
+    function normalizeCurrency(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return "EUR";
+      if (raw === "GBp" || raw.toUpperCase() === "GBX" || /pence/i.test(raw)) return "GBX";
+      const key = raw.toUpperCase().replace(/\s+/g, "");
+      const aliases = {
+        EURO: "EUR",
+        EUROS: "EUR",
+        "$": "USD",
+        "US$": "USD",
+        "U$D": "USD"
+      };
+      return aliases[key] || key;
+    }
+
+    function rowCurrency(row) {
+      return normalizeCurrency(row.currency || row.price_currency || row.quote_currency || row.trading_currency);
+    }
+
+    function fxRate(currency) {
+      const code = normalizeCurrency(currency);
+      if (code === "EUR") return 1;
+      if (!state.fx || !state.fx.rates) return null;
+      if (code === "GBX") return state.fx.rates.GBP || null;
+      return state.fx.rates[code] || null;
+    }
+
+    function priceToEuro(price, currency) {
+      const amount = parseNumber(price);
+      if (amount === null || amount <= 0) return null;
+      const code = normalizeCurrency(currency);
+      if (code === "EUR") return amount;
+      const rate = fxRate(code);
+      if (!rate) return null;
+      return code === "GBX" ? amount / 100 / rate : amount / rate;
+    }
+
+    function cashAmountToEuro(amount, currency) {
+      const value = parseNumber(amount);
+      if (value === null || value < 0) return null;
+      const code = normalizeCurrency(currency);
+      if (code === "EUR") return value;
+      const rate = code === "GBX" ? fxRate("GBP") : fxRate(code);
+      return rate ? value / rate : null;
+    }
+
+    function priceEur(item) {
+      return priceToEuro(item.price, rowCurrency(item.row));
+    }
+
+    function itemValue(item) {
+      const eur = priceEur(item);
+      const qty = parseNumber(item.qty) || 0;
+      return eur === null ? 0 : eur * qty;
+    }
+
+    function renderBasket() {
+      $("#basketList").innerHTML = state.basket.length ? state.basket.map((item) => {
+        const row = item.row;
+        const score = parseNumber(row[$("#scoreColumn").value]);
+        const value = itemValue(item);
+        const eur = priceEur(item);
+        const currency = rowCurrency(row);
+        return `
+          <div class="basket-item" data-basket-id="${item.id}">
+            <div class="mini-title">
+              <strong>${escapeHtml(row.name || row.symbol || row.yahoo_symbol || "Senza nome")}</strong>
+              <span class="subtle">${escapeHtml(row.yahoo_symbol || row.symbol || "")} | ${escapeHtml(row.sector || "-")} | score ${score === null ? "-" : niceNumber(score)}</span>
+              <span class="subtle">${escapeHtml(currency)} ${escapeHtml(item.price)} -> EUR ${eur === null ? "n/d" : niceNumber(eur)} | valore ${niceNumber(value, 0) || "0"}</span>
+            </div>
+            <label class="basket-mini-field">Qta
+              <input data-field="qty" type="number" min="0" step="1" value="${escapeHtml(item.qty)}" title="Quantita" aria-label="Quantita ${escapeHtml(row.name || row.symbol || "")}">
+            </label>
+            <label class="basket-mini-field">Prezzo
+              <input data-field="price" type="number" min="0" step="0.0001" value="${escapeHtml(item.price)}" title="Prezzo nella valuta originale" aria-label="Prezzo originale ${escapeHtml(row.name || row.symbol || "")}">
+            </label>
+            <button class="warn" data-remove="${item.id}" type="button" aria-label="Rimuovi ${escapeHtml(row.name || row.symbol || "")}">X</button>
+          </div>
+        `;
+      }).join("") : `<div class="empty">Basket vuoto.</div>`;
+      renderBasketSummary();
+    }
+
+    function renderBasketSummary() {
+      const totalValue = state.basket.reduce((sum, item) => sum + itemValue(item), 0);
+      const avgScore = weightedAverageScore();
+      const missingPrice = state.basket.filter((item) => priceEur(item) === null).length;
+      $("#basketStats").innerHTML = `
+        <div class="stat"><span>Stock</span><strong>${state.basket.length}</strong></div>
+        <div class="stat"><span>Controvalore EUR</span><strong>${niceNumber(totalValue, 0) || "0"}</strong></div>
+        <div class="stat"><span>Score medio</span><strong>${avgScore === null ? "-" : niceNumber(avgScore)}</strong></div>
+        <div class="stat"><span>Liquidita stimata</span><strong>${niceNumber(Math.max(0, (parseNumber($("#basketCapital").value) || 0) - totalValue), 0)}</strong></div>
+        <div class="stat"><span>Senza prezzo/cambio</span><strong>${missingPrice}</strong></div>
+      `;
+      renderComposition();
+    }
+
+    function weightedAverageScore() {
+      if (!state.basket.length) return null;
+      const scoreColumn = $("#scoreColumn").value;
+      let weighted = 0;
+      let weightSum = 0;
+      for (const item of state.basket) {
+        const score = parseNumber(item.row[scoreColumn]);
+        if (score === null) continue;
+        const value = itemValue(item);
+        const weight = value > 0 ? value : 1;
+        weighted += score * weight;
+        weightSum += weight;
+      }
+      return weightSum ? weighted / weightSum : null;
+    }
+
+    function renderComposition() {
+      const sector = aggregateBasket("sector");
+      const country = aggregateBasket("country");
+      const scoreBands = aggregateScoreBands();
+      $("#compositionBars").innerHTML = `
+        <div class="subtle">Settori</div>
+        ${renderBars(sector)}
+        <div class="subtle">Paesi</div>
+        ${renderBars(country)}
+        <div class="subtle">Score</div>
+        ${renderBars(scoreBands)}
+      `;
+    }
+
+    function aggregateBasket(column) {
+      const map = new Map();
+      const valueWeighted = state.basket.some((item) => itemValue(item) > 0);
+      for (const item of state.basket) {
+        const key = item.row[column] || "N/D";
+        const weight = valueWeighted ? itemValue(item) : 1;
+        map.set(key, (map.get(key) || 0) + weight);
+      }
+      return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+    }
+
+    function aggregateScoreBands() {
+      const scoreColumn = $("#scoreColumn").value;
+      const bands = new Map();
+      const valueWeighted = state.basket.some((item) => itemValue(item) > 0);
+      for (const item of state.basket) {
+        const score = parseNumber(item.row[scoreColumn]);
+        const label = score === null ? "N/D" : `${Math.floor(score)}-${Math.floor(score) + 1}`;
+        const weight = valueWeighted ? itemValue(item) : 1;
+        bands.set(label, (bands.get(label) || 0) + weight);
+      }
+      return [...bands.entries()].sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+    }
+
+    function renderBars(entries) {
+      if (!entries.length) return `<div class="empty">Nessun dato.</div>`;
+      const total = entries.reduce((sum, [, value]) => sum + value, 0) || 1;
+      return entries.map(([label, value]) => {
+        const pct = value / total * 100;
+        return `
+          <div class="bar-row">
+            <span title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+            <div class="bar-track"><span style="width:${pct}%"></span></div>
+            <span>${niceNumber(pct, 1)}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function incrementCount(map, key) {
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    function metricExceptions(row, metricColumns, minMetric) {
+      if (minMetric === null) return 0;
+      return metricColumns.reduce((count, column) => {
+        const score = parseNumber(row[column]);
+        return count + (score === null || score < minMetric ? 1 : 0);
+      }, 0);
+    }
+
+    function autofillBasket() {
+      const requested = Math.max(1, Math.floor(parseNumber($("#basketCount").value) || 20));
+      $("#basketCount").value = requested;
+      const remaining = Math.max(0, requested - state.basket.length);
+      const maxSector = Math.max(1, Math.ceil(requested * ((parseNumber($("#maxSectorPct").value) || 100) / 100)));
+      const maxCountry = Math.max(1, Math.ceil(requested * ((parseNumber($("#maxCountryPct").value) || 100) / 100)));
+      const minMetric = parseNumber($("#minMetricScore").value);
+      const maxExceptions = parseNumber($("#maxMetricExceptions").value) || 0;
+      const scoreColumn = $("#scoreColumn").value;
+      const metricColumns = metricScoreColumns();
+      const selected = [];
+      const used = new Set();
+      const sectorCount = new Map();
+      const countryCount = new Map();
+      const industryCount = new Map();
+
+      if (!state.csv.filtered.length) {
+        setBasketStatus("Nessuna riga disponibile: carica un CSV o allenta i filtri tabella.");
+        showToast("Nessuna riga disponibile");
+        return;
+      }
+      if (!scoreColumn) {
+        setBasketStatus("Autofill non disponibile: nessuna colonna voto trovata nel CSV.");
+        showToast("Colonna voto mancante");
+        return;
+      }
+      if (minMetric !== null && !metricColumns.length) {
+        setBasketStatus("Filtro indicatori non applicabile: nel CSV non ci sono colonne *_score.");
+        showToast("Colonne indicatore mancanti");
+        return;
+      }
+      if (remaining <= 0) {
+        setBasketStatus(`Basket gia al target: ${state.basket.length}/${requested} stock. Aumenta Numero stock o svuota il basket.`);
+        showToast("Basket gia al target");
+        return;
+      }
+
+      state.basket.forEach((item) => {
+        const sector = item.row.sector || "N/D";
+        const country = item.row.country || "N/D";
+        const industry = item.row.industry || "N/D";
+        incrementCount(sectorCount, sector);
+        incrementCount(countryCount, country);
+        incrementCount(industryCount, industry);
+      });
+
+      const existingKeys = new Set(state.basket.map((item) => item.key));
+      const candidates = state.csv.filtered
+        .filter((row) => !existingKeys.has(rowKey(row)))
+        .filter((row) => parseNumber(row[scoreColumn]) !== null)
+        .filter((row) => metricExceptions(row, metricColumns, minMetric) <= maxExceptions)
+        .sort((left, right) => (parseNumber(right[scoreColumn]) ?? -Infinity) - (parseNumber(left[scoreColumn]) ?? -Infinity));
+
+      while (selected.length < remaining && used.size < candidates.length) {
+        let bestRow = null;
+        let bestRank = -Infinity;
+        for (const row of candidates) {
+          const key = rowKey(row);
+          if (used.has(key)) continue;
+          const sector = row.sector || "N/D";
+          const country = row.country || "N/D";
+          if ((sectorCount.get(sector) || 0) >= maxSector) continue;
+          if ((countryCount.get(country) || 0) >= maxCountry) continue;
+          const industry = row.industry || "N/D";
+          const score = parseNumber(row[scoreColumn]) ?? -Infinity;
+          const sectorPressure = (sectorCount.get(sector) || 0) / Math.max(maxSector, 1);
+          const countryPressure = (countryCount.get(country) || 0) / Math.max(maxCountry, 1);
+          const industryRepeat = industry === "N/D" ? 0 : (industryCount.get(industry) || 0);
+          const rank = score - industryRepeat * 0.35 - sectorPressure * 0.1 - countryPressure * 0.05;
+          if (rank > bestRank) {
+            bestRank = rank;
+            bestRow = row;
+          }
+        }
+        if (!bestRow) break;
+        used.add(rowKey(bestRow));
+        selected.push(bestRow);
+        incrementCount(sectorCount, bestRow.sector || "N/D");
+        incrementCount(countryCount, bestRow.country || "N/D");
+        incrementCount(industryCount, bestRow.industry || "N/D");
+      }
+
+      selected.forEach((row) => {
+        state.basket.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+          key: rowKey(row),
+          row,
+          qty: 0,
+          price: guessPrice(row)
+        });
+      });
+      const allocation = rebalance("equal", { silent: true });
+      const parts = [
+        `Autofill: aggiunte ${selected.length}, basket ${state.basket.length}/${requested}`,
+        `cap settore max ${maxSector}`,
+        `cap paese max ${maxCountry}`
+      ];
+      if (minMetric !== null) parts.push(`indicatori >= ${minMetric}, eccezioni ${maxExceptions}`);
+      if (allocation?.target > 0) {
+        parts.push(`investito ${niceNumber(allocation.invested, 0)}/${niceNumber(allocation.target, 0)} EUR`);
+        if (allocation.cash > 0) parts.push(`liquidita ${niceNumber(allocation.cash, 0)} EUR`);
+        if (allocation.missingPrice > 0) parts.push(`${allocation.missingPrice} senza prezzo/cambio`);
+      }
+      if (selected.length < remaining) parts.push("vincoli o filtri troppo stretti");
+      setBasketStatus(parts.join(" - "));
+      showToast(`${selected.length} aziende aggiunte al basket`);
+    }
+
+    function rebalance(mode, options = {}) {
+      const capital = parseNumber($("#basketCapital").value) || 0;
+      if (!capital || !state.basket.length) {
+        renderBasket();
+        if (!options.silent) {
+          setBasketStatus(state.basket.length ? "Inserisci un capitale EUR per ribilanciare." : "Basket vuoto.");
+        }
+        return { target: capital, invested: 0, cash: capital, missingPrice: state.basket.length, missingWeight: 0 };
+      }
+      const scoreColumn = $("#scoreColumn").value;
+      const weights = state.basket.map((item) => {
+        if (mode === "score") return Math.max(0, parseNumber(item.row[scoreColumn]) || 0);
+        if (mode === "market_cap") return Math.max(0, marketCapEur(item.row) || 0);
+        return 1;
+      });
+      const totalWeight = weights.reduce((sum, value) => sum + value, 0);
+      const label = mode === "score" ? "score" : mode === "market_cap" ? "market cap" : "equipesato";
+      if (totalWeight <= 0) {
+        renderBasket();
+        if (!options.silent) setBasketStatus(`Ribilanciamento ${label} non riuscito: nessuna metrica positiva disponibile.`);
+        return { target: capital, invested: 0, cash: capital, missingPrice: 0, missingWeight: state.basket.length };
+      }
+
+      state.basket.forEach((item, index) => {
+        const eur = priceEur(item);
+        if (!eur || eur <= 0 || weights[index] <= 0) {
+          item.qty = 0;
+          return;
+        }
+        const allocation = capital * (weights[index] / totalWeight);
+        item.qty = Math.max(0, Math.floor(allocation / eur));
+      });
+
+      const priced = state.basket
+        .map((item, index) => ({
+          item,
+          index,
+          price: priceEur(item),
+          weight: weights[index],
+          score: parseNumber(item.row[scoreColumn]) || 0,
+          marketCap: marketCapEur(item.row) || 0
+        }))
+        .filter((entry) => entry.price && entry.price > 0 && entry.weight > 0);
+      let invested = state.basket.reduce((sum, item) => sum + itemValue(item), 0);
+      let cash = Math.max(0, capital - invested);
+      const minPrice = priced.length ? Math.min(...priced.map((entry) => entry.price)) : Infinity;
+      let guard = 0;
+      while (cash >= minPrice && guard < 20000) {
+        invested = state.basket.reduce((sum, item) => sum + itemValue(item), 0);
+        const denominator = Math.max(invested, 1);
+        const next = priced
+          .filter((entry) => entry.price <= cash)
+          .sort((left, right) => {
+            if (mode === "equal") {
+              if (right.score !== left.score) return right.score - left.score;
+              return left.price - right.price;
+            }
+            const leftTarget = left.weight / totalWeight;
+            const rightTarget = right.weight / totalWeight;
+            const leftCurrent = itemValue(left.item) / denominator;
+            const rightCurrent = itemValue(right.item) / denominator;
+            const leftGap = leftTarget - leftCurrent;
+            const rightGap = rightTarget - rightCurrent;
+            if (rightGap !== leftGap) return rightGap - leftGap;
+            return right.weight - left.weight;
+          })[0];
+        if (!next) break;
+        next.item.qty = (parseNumber(next.item.qty) || 0) + 1;
+        cash -= next.price;
+        guard += 1;
+      }
+      invested = state.basket.reduce((sum, item) => sum + itemValue(item), 0);
+      const result = {
+        target: capital,
+        invested,
+        cash: Math.max(0, capital - invested),
+        missingPrice: state.basket.filter((item) => priceEur(item) === null).length,
+        missingWeight: weights.filter((value) => value <= 0).length
+      };
+      renderBasket();
+      if (!options.silent) {
+        const parts = [
+          `Ribilanciamento ${label}`,
+          `investito ${niceNumber(result.invested, 0)}/${niceNumber(result.target, 0)} EUR`,
+          `liquidita ${niceNumber(result.cash, 0)} EUR`
+        ];
+        if (result.missingPrice > 0) parts.push(`${result.missingPrice} senza prezzo/cambio`);
+        if (mode !== "equal" && result.missingWeight > 0) parts.push(`${result.missingWeight} senza metrica positiva`);
+        setBasketStatus(parts.join(" - "));
+      }
+      return result;
+    }
+
+    function exportFilteredRows() {
+      if (!state.csv.filtered.length) return;
+      downloadCsv(`${fileName(state.csv.path).replace(/\.csv$/i, "")}_filtered.csv`, state.csv.columns, state.csv.filtered);
+    }
+
+    function exportBasketRows() {
+      if (!state.basket.length) {
+        setBasketStatus("Export non disponibile: basket vuoto.");
+        return;
+      }
+      const extra = ["basket_qty", "basket_price_original", "basket_price_eur", "basket_value_eur"];
+      const rows = state.basket.map((item) => ({
+        ...item.row,
+        basket_qty: item.qty,
+        basket_price_original: item.price,
+        basket_price_eur: priceEur(item) ?? "",
+        basket_value_eur: itemValue(item)
+      }));
+      downloadCsv("basket.csv", [...state.csv.columns, ...extra], rows);
+      setBasketStatus(`Export basket pronto: ${state.basket.length} stock.`);
+    }
+
+    function downloadCsv(name, columns, rows) {
+      const cleanColumns = columns.filter((column) => column !== "__index");
+      const lines = [cleanColumns.map(csvEscape).join(",")];
+      rows.forEach((row) => {
+        lines.push(cleanColumns.map((column) => csvEscape(row[column])).join(","));
+      });
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = name;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      if (/[",\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
+      return text;
+    }
+
+    async function loadFx() {
+      try {
+        const payload = await api("/api/fx");
+        state.fx = payload;
+        $("#fxStatus").textContent = `FX: ECB ${payload.date || ""}${payload.stale ? " (cache)" : ""}`;
+        renderBasket();
+      } catch (error) {
+        $("#fxStatus").textContent = `FX: non disponibile (${error.message})`;
+      }
+    }
+
+    function bindEvents() {
+      $$(".nav button").forEach((button) => {
+        button.addEventListener("click", () => setView(button.dataset.view));
+      });
+      $("#sidebarToggle").addEventListener("click", () => {
+        setSidebarCollapsed(!$(".layout").classList.contains("sidebar-collapsed"));
+      });
+      $("#applyFolders").addEventListener("click", applyFolderControls);
+      ["fundamentalsDir", "rankingDir", "configDir"].forEach((id) => {
+        $(`#${id}`).addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            applyFolderControls();
+          }
+        });
+      });
+      $$(".folder-pick").forEach((button) => {
+        button.addEventListener("click", () => openFolderDialog(button.dataset.folderTarget));
+      });
+      $("#folderDialogClose").addEventListener("click", closeFolderDialog);
+      $("#folderDialogCancel").addEventListener("click", closeFolderDialog);
+      $("#folderDialogSelect").addEventListener("click", selectFolderFromDialog);
+      $("#folderDialogUp").addEventListener("click", () => loadFolderDialog($("#folderDialogUp").dataset.parentPath || ""));
+      $("#folderDialogList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-folder-path]");
+        if (!button) return;
+        loadFolderDialog(button.dataset.folderPath);
+      });
+      $("#folderDialog").addEventListener("click", (event) => {
+        if (event.target.id === "folderDialog") closeFolderDialog();
+      });
+      $("#refreshAll").addEventListener("click", () => Promise.allSettled([loadFiles(), loadJobs(true), loadConfigs()]));
+      $("#refreshJobs").addEventListener("click", () => loadJobs(true));
+      $("#refreshConfigs").addEventListener("click", () => loadConfigs());
+      $("#refreshCsvFiles").addEventListener("click", () => loadFiles());
+      $("#fundamentalsForm").addEventListener("submit", submitFundamentals);
+      $("#fitnessForm").addEventListener("submit", submitFitness);
+      ["market", "format"].forEach((name) => {
+        $(`[name=${name}]`, $("#fundamentalsForm")).addEventListener("change", updateOutputPlaceholders);
+      });
+      $("[name=input]", $("#fitnessForm")).addEventListener("change", updateFitnessOutputSuggestion);
+      $("#outputFolders").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-cleanup-category]");
+        if (!button) return;
+        cleanupOutputFolder(button.dataset.cleanupCategory);
+      });
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest(".collapse-toggle");
+        if (!button) return;
+        const panel = button.closest(".panel[data-collapse-key]");
+        if (!panel) return;
+        setPanelCollapsed(panel, !panel.classList.contains("is-collapsed"));
+      });
+      $("#cancelJob").addEventListener("click", cancelSelectedJob);
+      $("#jobList").addEventListener("click", (event) => {
+        const card = event.target.closest("[data-job-id]");
+        if (!card) return;
+        state.selectedJobId = card.dataset.jobId;
+        renderSelectedJob().catch((error) => showToast(error.message));
+      });
+
+      $("#configSearch").addEventListener("input", renderConfigList);
+      $("#configList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-config-path]");
+        if (!button) return;
+        loadConfigDetail(button.dataset.configPath);
+      });
+
+      $("#loadCsv").addEventListener("click", loadSelectedCsv);
+      ["globalSearch", "sectorFilter", "countryFilter", "scoreColumn", "minScore", "minComplete", "marketCapMin", "marketCapMax"].forEach((id) => {
+        $(`#${id}`).addEventListener("input", () => {
+          if (id === "scoreColumn") state.csv.sortColumn = $("#scoreColumn").value;
+          state.csv.page = 1;
+          applyFilters();
+        });
+      });
+      $("#columnPreset").addEventListener("change", () => {
+        state.csv.columnPreset = $("#columnPreset").value;
+        if (state.csv.columnPreset === "custom") return;
+        state.csv.visibleColumns = new Set(presetColumns(state.csv.columns, state.csv.columnPreset));
+        renderColumnChooser();
+        state.csv.page = 1;
+        renderTable();
+      });
+      $("#resetPinnedColumns").addEventListener("click", () => {
+        state.csv.frozenColumns = defaultFrozenColumns(state.csv.columns);
+        renderTable();
+      });
+      $("#columnChooser").addEventListener("change", (event) => {
+        const input = event.target.closest("[data-column]");
+        if (!input) return;
+        if (input.checked) state.csv.visibleColumns.add(input.dataset.column);
+        else state.csv.visibleColumns.delete(input.dataset.column);
+        state.csv.columnPreset = "custom";
+        if ($("#columnPreset")) $("#columnPreset").value = "custom";
+        renderTable();
+      });
+      $("#rankTable").addEventListener("click", (event) => {
+        const pin = event.target.closest("[data-pin-column]");
+        if (pin) {
+          event.stopPropagation();
+          const column = pin.dataset.pinColumn;
+          if (state.csv.frozenColumns.has(column)) state.csv.frozenColumns.delete(column);
+          else state.csv.frozenColumns.add(column);
+          renderTable();
+          return;
+        }
+        const add = event.target.closest("[data-add-index]");
+        if (add) {
+          addRowToBasket(add.dataset.addIndex);
+          return;
+        }
+        const header = event.target.closest("th[data-sort]");
+        if (header && header.dataset.sort !== "__action") {
+          const column = header.dataset.sort;
+          if (state.csv.sortColumn === column) state.csv.sortDir = state.csv.sortDir === "asc" ? "desc" : "asc";
+          else {
+            state.csv.sortColumn = column;
+            state.csv.sortDir = "desc";
+          }
+          applyFilters();
+          return;
+        }
+      });
+      $("#prevPage").addEventListener("click", () => {
+        state.csv.page = Math.max(1, state.csv.page - 1);
+        renderTable();
+      });
+      $("#nextPage").addEventListener("click", () => {
+        const pages = Math.max(1, Math.ceil(state.csv.filtered.length / state.csv.pageSize));
+        state.csv.page = Math.min(pages, state.csv.page + 1);
+        renderTable();
+      });
+      $("#scrollTableLeft").addEventListener("click", () => scrollRankTable(-1));
+      $("#scrollTableRight").addEventListener("click", () => scrollRankTable(1));
+      $("#exportFiltered").addEventListener("click", exportFilteredRows);
+      $("#autofillBasket").addEventListener("click", autofillBasket);
+      $("#rebalanceScore").addEventListener("click", () => rebalance("score"));
+      $("#rebalanceCap").addEventListener("click", () => rebalance("market_cap"));
+      $("#exportBasket").addEventListener("click", exportBasketRows);
+      $("#clearBasket").addEventListener("click", () => {
+        state.basket = [];
+        setBasketStatus("Basket svuotato.");
+        renderBasket();
+      });
+      $("#basketList").addEventListener("input", (event) => {
+        const input = event.target.closest("[data-field]");
+        if (!input) return;
+        const item = state.basket.find((entry) => entry.id === input.closest("[data-basket-id]").dataset.basketId);
+        if (!item) return;
+        item[input.dataset.field] = input.value;
+        renderBasketSummary();
+      });
+      $("#basketList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove]");
+        if (!button) return;
+        state.basket = state.basket.filter((item) => item.id !== button.dataset.remove);
+        renderBasket();
+      });
+      ["basketCapital", "scoreColumn"].forEach((id) => {
+        $(`#${id}`).addEventListener("input", renderBasket);
+      });
+    }
+
+    async function init() {
+      bindEvents();
+      initSidebar();
+      initCollapsiblePanels();
+      hydrateFolderControls();
+      renderBasket();
+      await Promise.allSettled([loadFiles(), loadJobs(true), loadConfigs(), loadFx()]);
+      const selectedCsv = $("#csvSelect").value;
+      if (selectedCsv) loadSelectedCsv();
+      setInterval(() => {
+        if (state.jobs.some(isActiveJob)) {
+          loadJobs(true);
+        } else {
+          loadJobs(false);
+        }
+      }, 2500);
+    }
+
+    init().catch((error) => showToast(error.message));
+  </script>
+</body>
+</html>

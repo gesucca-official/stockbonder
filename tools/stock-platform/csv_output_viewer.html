@@ -1,0 +1,4037 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StockMix Lab</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="14" fill="%230f766e"/%3E%3Cpath d="M16 44 28 30l8 8 12-18" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/%3E%3Ccircle cx="16" cy="44" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="28" cy="30" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="36" cy="38" r="4" fill="%23fbbf24"/%3E%3Ccircle cx="48" cy="20" r="4" fill="%23fbbf24"/%3E%3C/svg%3E'>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel-strong: #edf2f6;
+      --text: #1f2933;
+      --muted: #637083;
+      --line: #d7e0e8;
+      --line-strong: #b8c5d0;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --blue: #2563eb;
+      --amber: #b45309;
+      --red: #b91c1c;
+      --green-soft: #e0f4ef;
+      --blue-soft: #e8efff;
+      --amber-soft: #fff2dd;
+      --shadow: 0 12px 30px rgba(29, 42, 56, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.1;
+      font-weight: 750;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .toolbar select,
+    .toolbar button,
+    .file-button,
+    .field,
+    .select-field {
+      min-height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 10px;
+      min-width: 0;
+    }
+
+    .toolbar select {
+      width: min(420px, 42vw);
+    }
+
+    .toolbar button,
+    .file-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .toolbar button.primary,
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .toolbar button.danger,
+    .button.danger {
+      color: var(--red);
+      border-color: #efc6c6;
+      background: #fffafa;
+    }
+
+    .collapse-button {
+      width: 38px;
+      min-width: 38px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .file-button {
+      position: relative;
+    }
+
+    .file-button input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .workspace-column {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .side-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(130px, 0.8fr) minmax(140px, 1fr);
+      overflow: hidden;
+    }
+
+    .section {
+      min-width: 0;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .section-head .count {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .section-body {
+      padding: 12px 14px;
+      min-width: 0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 9px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 104px;
+      gap: 8px;
+    }
+
+    .filter-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .value-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .button {
+      min-height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 10px;
+      font-weight: 650;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding-top: 2px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+      min-height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      padding: 4px 8px 4px 10px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .chip span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0 2px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .column-tools {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 7px;
+      align-items: center;
+      padding: 12px 14px 8px;
+    }
+
+    .column-list {
+      min-height: 0;
+      overflow: auto;
+      padding: 0 8px 10px 14px;
+    }
+
+    .column-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 32px;
+      padding: 5px 6px 5px 0;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 13px;
+    }
+
+    .column-item span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .column-item small {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .detail-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 8px 14px 12px;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 7px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: minmax(92px, 0.44fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      padding: 7px 0;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 12px;
+    }
+
+    .detail-row strong {
+      overflow-wrap: anywhere;
+    }
+
+    .detail-row span {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .table-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+    }
+
+    .basket-panel {
+      overflow: hidden;
+    }
+
+    .basket-panel.is-collapsed .basket-head {
+      border-bottom: 0;
+    }
+
+    .basket-head {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.38fr) minmax(320px, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .basket-title h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .basket-title span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .basket-actions {
+      display: grid;
+      grid-template-columns: minmax(230px, 0.9fr) minmax(260px, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+
+    .compact-field {
+      width: 92px;
+    }
+
+    .money-field {
+      width: 118px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      min-width: 0;
+    }
+
+    .control-field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .control-field select {
+      width: min(240px, 100%);
+    }
+
+    .field-note {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .action-group {
+      justify-content: flex-end;
+    }
+
+    .weight-button-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .weight-button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 0;
+      padding: 7px 11px;
+      color: var(--accent);
+      background: transparent;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .weight-button + .weight-button {
+      border-left: 1px solid var(--line);
+    }
+
+    .weight-button:hover {
+      background: var(--green-soft);
+    }
+
+    .config-button-group .weight-button {
+      color: var(--blue);
+    }
+
+    .config-button-group .weight-button:hover {
+      background: var(--blue-soft);
+    }
+
+    .basket-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) minmax(300px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 12px;
+      padding: 12px;
+      align-items: stretch;
+    }
+
+    .basket-grid[hidden] {
+      display: none;
+    }
+
+    .basket-targets,
+    .basket-visuals {
+      min-width: 0;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .basket-list-panel {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(320px, 1fr);
+      gap: 10px;
+      align-content: stretch;
+    }
+
+    .target-card {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .target-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .target-head h3 {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .target-total {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .target-meta {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .tiny-button {
+      min-height: 26px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--muted);
+      padding: 4px 7px;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .target-list {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .target-list[hidden] {
+      display: none;
+    }
+
+    .target-row {
+      display: grid;
+      grid-template-columns: minmax(92px, 0.58fr) minmax(92px, 1fr) 56px 28px;
+      gap: 7px;
+      align-items: center;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .target-row label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .target-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .target-row input[type="number"] {
+      width: 56px;
+      min-height: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 5px 6px;
+      text-align: right;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cap-control-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cap-row {
+      display: grid;
+      grid-template-columns: minmax(88px, 0.55fr) minmax(110px, 1fr) 62px;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .cap-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .cap-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .cap-row input[type="number"] {
+      width: 62px;
+      min-height: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 5px 6px;
+      text-align: right;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .market-cap-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+    }
+
+    .target-empty {
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .autofill-status {
+      grid-column: 1 / -1;
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      color: var(--muted);
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .basket-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .score-panel {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mini-chart {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .mini-chart h3,
+    .basket-list-panel h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .chart-list {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: minmax(88px, 0.5fr) minmax(80px, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+      font-size: 12px;
+    }
+
+    .chart-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+    }
+
+    .chart-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #edf1f5;
+      overflow: hidden;
+    }
+
+    .chart-track span {
+      display: block;
+      height: 100%;
+      width: var(--bar-width);
+      background: var(--accent);
+    }
+
+    .chart-count {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .score-bins {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .score-bin {
+      display: grid;
+      grid-template-rows: minmax(82px, 1fr) auto auto;
+      gap: 5px;
+      min-width: 0;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .score-bin strong {
+      color: var(--text);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-bin-bar {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      min-height: 82px;
+      border-radius: 8px;
+      background: #f3f6f8;
+      overflow: hidden;
+    }
+
+    .score-bin-bar span {
+      display: block;
+      width: 100%;
+      height: var(--score-height);
+      min-height: 4px;
+      background: linear-gradient(180deg, var(--accent), var(--blue));
+    }
+
+    .score-highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+      gap: 7px;
+    }
+
+    .pie-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pie-card {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .pie-card h3 {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .pie-body {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .donut-chart {
+      position: relative;
+      width: 112px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--pie-gradient);
+      box-shadow: inset 0 0 0 1px rgba(31, 41, 51, 0.08);
+      flex: 0 0 auto;
+    }
+
+    .donut-chart::after {
+      content: "";
+      position: absolute;
+      inset: 27px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(31, 41, 51, 0.06);
+    }
+
+    .donut-total {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pie-legend {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+      max-height: 132px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .pie-legend-row {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+      min-width: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pie-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--dot-color);
+    }
+
+    .pie-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pie-value {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .basket-list {
+      height: 100%;
+      min-height: 320px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .basket-list .empty-state {
+      min-height: 118px;
+    }
+
+    .basket-stock {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+      grid-template-areas:
+        "main score score find remove"
+        "main shares price value value";
+      gap: 7px;
+      align-items: center;
+      padding: 8px 9px;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 12px;
+    }
+
+    .basket-stock:last-child {
+      border-bottom: 0;
+    }
+
+    .basket-stock-main {
+      grid-area: main;
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .basket-stock-title {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .basket-stock-main strong,
+    .basket-stock-main span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .basket-stock-main span {
+      color: var(--muted);
+    }
+
+    .basket-stock-main .basket-tag {
+      max-width: 92px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f7faf8;
+      color: var(--accent);
+      padding: 2px 6px;
+      font-size: 10px;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    .basket-stock-main .country-tag {
+      max-width: 72px;
+      background: #f5f8ff;
+      color: var(--blue);
+    }
+
+    .basket-score {
+      grid-area: score;
+      min-width: 44px;
+      text-align: right;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      justify-self: end;
+    }
+
+    .position-field {
+      display: grid;
+      gap: 2px;
+      width: 72px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 650;
+    }
+
+    .position-field span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .shares-field {
+      grid-area: shares;
+    }
+
+    .price-field {
+      grid-area: price;
+    }
+
+    .position-field input {
+      width: 100%;
+      min-height: 28px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 4px 6px;
+      text-align: right;
+      font: inherit;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .position-value {
+      grid-area: value;
+      min-width: 74px;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      justify-self: end;
+    }
+
+    .icon-button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .find-button {
+      grid-area: find;
+      width: 34px;
+      color: var(--accent);
+      font-size: 11px;
+    }
+
+    .remove-basket-button {
+      grid-area: remove;
+    }
+
+    .statusbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      padding: 4px 9px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .stat strong {
+      color: var(--text);
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .table-wrap {
+      min-height: 0;
+      overflow: auto;
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: auto;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      border-right: 1px solid #e6ebf0;
+      border-bottom: 1px solid #e6ebf0;
+      padding: 7px 9px;
+      max-width: 420px;
+      min-width: 140px;
+      line-height: 1.25;
+      vertical-align: top;
+      background: #ffffff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: #f8fafc;
+      color: #263241;
+      font-size: 12px;
+      font-weight: 750;
+      text-align: left;
+      user-select: none;
+    }
+
+    th.sticky-column,
+    td.sticky-column {
+      position: sticky;
+      left: var(--sticky-left, 0px);
+      z-index: 4;
+      box-shadow: 1px 0 0 #dce4ec;
+    }
+
+    th.sticky-column {
+      z-index: 6;
+    }
+
+    .header-cell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      min-height: 34px;
+    }
+
+    .sort-button {
+      width: 100%;
+      min-height: 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      text-align: left;
+      font-weight: inherit;
+    }
+
+    .header-label {
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .pin-button {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: #f4f6f8;
+      color: #8a97a6;
+      padding: 0;
+      line-height: 1;
+      font-size: 13px;
+    }
+
+    .pin-button svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pin-button.is-active {
+      border-color: #dc2626;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fcfdff;
+    }
+
+    tbody tr:hover td,
+    tbody tr.selected td {
+      background: var(--green-soft);
+    }
+
+    tbody tr.in-basket td {
+      background: var(--blue-soft);
+    }
+
+    tbody tr.in-basket.selected td {
+      background: #d7ece8;
+    }
+
+    td.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.empty {
+      color: #a0acb8;
+    }
+
+    .sort-token {
+      color: var(--accent);
+      font-size: 11px;
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .score-cell {
+      display: grid;
+      grid-template-columns: minmax(44px, auto) minmax(52px, 1fr);
+      gap: 8px;
+      align-items: center;
+      min-width: 120px;
+    }
+
+    .score-bar {
+      height: 7px;
+      border-radius: 999px;
+      background: #edf1f5;
+      overflow: hidden;
+    }
+
+    .score-bar span {
+      display: block;
+      height: 100%;
+      width: var(--score-width);
+      background: linear-gradient(90deg, var(--amber), var(--accent));
+    }
+
+    .pager {
+      display: grid;
+      grid-template-columns: minmax(140px, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .pager-controls {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .page-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty-state,
+    .loading {
+      display: grid;
+      place-items: center;
+      min-height: 260px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    @media (max-width: 980px) {
+      .topbar,
+      .main,
+      .statusbar,
+      .basket-head,
+      .basket-grid,
+      .pager {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar,
+      .table-actions,
+      .pager-controls {
+        justify-content: flex-start;
+      }
+
+      .toolbar select {
+        width: 100%;
+      }
+
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace-column {
+        grid-template-rows: auto auto;
+      }
+
+      .basket-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .pie-grid,
+      .pie-body {
+        grid-template-columns: 1fr;
+      }
+
+      .donut-chart {
+        width: min(150px, 52vw);
+        justify-self: center;
+      }
+
+      .action-group {
+        justify-content: flex-start;
+      }
+
+      .control-field select {
+        width: 100%;
+      }
+
+      .side-panel {
+        max-height: none;
+        grid-template-rows: auto auto minmax(180px, 280px) minmax(140px, 260px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>StockMix Lab</h1>
+        <p id="fileSummary">Nessun CSV caricato</p>
+      </div>
+      <div class="toolbar">
+        <select id="serverFileSelect" aria-label="CSV nel progetto"></select>
+        <button id="reloadButton" type="button">Ricarica</button>
+        <label class="file-button">
+          Apri CSV
+          <input id="fileInput" type="file" accept=".csv,text/csv">
+        </label>
+        <button id="exportButton" class="primary" type="button">Esporta filtrati</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <aside class="panel side-panel">
+        <section class="section">
+          <div class="section-head">
+            <h2>Ricerca</h2>
+            <span id="activeFilterCount" class="count">0 filtri</span>
+          </div>
+          <div class="section-body stack">
+            <input id="globalSearch" class="field" type="search" placeholder="Cerca ovunque">
+            <div class="filter-grid">
+              <select id="filterColumn" class="select-field wide" aria-label="Colonna filtro"></select>
+              <select id="filterOperator" class="select-field" aria-label="Operatore filtro"></select>
+              <input id="filterValue" class="field" type="text" placeholder="Valore">
+              <div id="filterBetween" class="value-pair wide" hidden>
+                <input id="filterMin" class="field" type="text" placeholder="Min">
+                <input id="filterMax" class="field" type="text" placeholder="Max">
+              </div>
+              <button id="addFilterButton" class="button primary wide" type="button">Aggiungi filtro</button>
+            </div>
+            <div id="filterChips" class="chip-list"></div>
+            <div class="button-row">
+              <button id="clearFiltersButton" class="button danger" type="button">Pulisci</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>Ordinamento</h2>
+            <span id="sortSummary" class="count">Nessuno</span>
+          </div>
+          <div class="section-body stack">
+            <div class="filter-grid">
+              <select id="sortColumn" class="select-field wide" aria-label="Colonna ordinamento"></select>
+              <select id="sortDirection" class="select-field" aria-label="Direzione ordinamento">
+                <option value="asc">ASC</option>
+                <option value="desc">DESC</option>
+              </select>
+              <button id="applySortButton" class="button" type="button">Ordina</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>Colonne</h2>
+            <span id="visibleColumnCount" class="count">0/0</span>
+          </div>
+          <div class="column-tools">
+            <input id="columnSearch" class="field" type="search" placeholder="Filtra colonne">
+            <button id="showAllColumns" class="button" type="button">Tutte</button>
+            <button id="showBaseColumns" class="button" type="button">Base</button>
+            <button id="showScoreColumns" class="button" type="button">Score</button>
+          </div>
+          <div id="columnList" class="column-list"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>Dettaglio</h2>
+            <span id="detailSummary" class="count">-</span>
+          </div>
+          <div id="detailBody" class="detail-body">
+            <div class="empty-state">Seleziona una riga</div>
+          </div>
+        </section>
+      </aside>
+
+      <div class="workspace-column">
+        <section id="basketPanel" class="panel basket-panel">
+          <div class="basket-head">
+            <div class="basket-title">
+              <h2>Basket</h2>
+              <span id="basketSummary">0 stock</span>
+            </div>
+            <div class="basket-actions">
+              <div class="control-group">
+                <label class="control-field">
+                  <span>Stock</span>
+                  <input id="basketTargetCount" class="field compact-field" type="number" min="1" step="1" value="20" aria-label="Numero stock">
+                </label>
+                <label class="control-field">
+                  <span>Voto</span>
+                  <select id="basketScoreColumn" class="select-field" aria-label="Colonna voto"></select>
+                </label>
+                <label class="control-field">
+                  <span>Capitale</span>
+                  <input id="basketPortfolioValue" class="field money-field" type="number" min="0" step="100" placeholder="0" aria-label="Valore totale portafoglio">
+                </label>
+                <label class="control-field">
+                  <span>Cambi EUR</span>
+                  <button id="refreshFxRates" class="button" type="button">Aggiorna</button>
+                  <small id="fxRateStatus" class="field-note">non caricati</small>
+                </label>
+              </div>
+              <div class="control-group action-group">
+                <button id="addSelectedToBasket" class="button" type="button">Aggiungi selezionata</button>
+                <button id="autofillBasket" class="button primary" type="button">Autofill</button>
+                <div class="weight-button-group" aria-label="Pesi automatici basket">
+                  <button id="marketCapWeightBasket" class="button weight-button" type="button">Mkt cap</button>
+                  <button id="scoreWeightBasket" class="button weight-button" type="button">Score</button>
+                </div>
+                <button id="exportBasket" class="button" type="button">Esporta</button>
+                <div class="weight-button-group config-button-group" aria-label="Configurazione autofill">
+                  <button id="exportAutofillConfig" class="button weight-button" type="button">Cfg out</button>
+                  <button id="importAutofillConfig" class="button weight-button" type="button">Cfg in</button>
+                </div>
+                <input id="importAutofillConfigFile" type="file" accept=".json,application/json" hidden>
+                <button id="clearBasket" class="button danger" type="button">Svuota</button>
+                <button id="toggleBasket" class="button collapse-button" type="button" title="Comprimi basket" aria-label="Comprimi basket" aria-expanded="true" aria-controls="basketBody">&uarr;</button>
+              </div>
+            </div>
+          </div>
+          <div id="basketBody" class="basket-grid">
+            <div id="autofillStatus" class="autofill-status">Pronto</div>
+            <div class="basket-targets">
+              <div class="target-card">
+                <div class="target-head">
+                  <h3>Cap autofill</h3>
+                  <div class="target-meta">
+                    <span id="autofillCapSummary" class="target-total">-</span>
+                  </div>
+                </div>
+                <div class="cap-control-list">
+                  <label class="cap-row">
+                    <span>Max settore</span>
+                    <input id="sectorCapSlider" type="range" min="5" max="100" step="5" value="35" aria-label="Cap massimo settore">
+                    <input id="sectorCapNumber" type="number" min="5" max="100" step="1" value="35" aria-label="Cap massimo settore percentuale">
+                  </label>
+                  <label class="cap-row">
+                    <span>Max paese</span>
+                    <input id="countryCapSlider" type="range" min="5" max="100" step="5" value="50" aria-label="Cap massimo paese">
+                    <input id="countryCapNumber" type="number" min="5" max="100" step="1" value="50" aria-label="Cap massimo paese percentuale">
+                  </label>
+                </div>
+              </div>
+              <div class="target-card">
+                <div class="target-head">
+                  <h3>Filtro market cap</h3>
+                  <div class="target-meta">
+                    <span id="marketCapFilterSummary" class="target-total">Qualsiasi</span>
+                  </div>
+                </div>
+                <div class="market-cap-filter-grid">
+                  <label class="control-field">
+                    <span>Min EUR</span>
+                    <input id="autofillMarketCapMin" class="field" type="number" min="0" step="1000000" placeholder="0">
+                  </label>
+                  <label class="control-field">
+                    <span>Max EUR</span>
+                    <input id="autofillMarketCapMax" class="field" type="number" min="0" step="1000000" placeholder="nessuno">
+                  </label>
+                </div>
+              </div>
+              <div class="target-card">
+                <div class="target-head">
+                  <h3>Filtro qualità voto</h3>
+                  <div class="target-meta">
+                    <span id="scoreQualityFilterSummary" class="target-total">Qualsiasi</span>
+                  </div>
+                </div>
+                <div class="market-cap-filter-grid">
+                  <label class="control-field">
+                    <span>Completezza min %</span>
+                    <input id="autofillCompletenessMin" class="field" type="number" min="0" max="100" step="1" placeholder="0">
+                  </label>
+                  <label class="control-field">
+                    <span>Min indicatori</span>
+                    <input id="autofillIndicatorScoreMin" class="field" type="number" min="0" max="10" step="0.1" placeholder="0">
+                  </label>
+                  <label class="control-field">
+                    <span>Eccezioni max</span>
+                    <input id="autofillIndicatorExceptionMax" class="field" type="number" min="0" step="1" value="0">
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="basket-visuals">
+              <div class="score-panel">
+                <div id="basketStats" class="basket-stats"></div>
+                <div class="mini-chart">
+                  <h3>Distribuzione voti</h3>
+                  <div id="scoreChart" class="score-bins"></div>
+                </div>
+                <div id="scoreHighlights" class="score-highlights"></div>
+                <div class="pie-grid">
+                  <div class="pie-card">
+                    <h3>Paesi</h3>
+                    <div id="countryPie" class="pie-body"></div>
+                  </div>
+                  <div class="pie-card">
+                    <h3>Settori</h3>
+                    <div id="sectorPie" class="pie-body"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="basket-list-panel">
+              <h3>Stock</h3>
+              <div id="basketList" class="basket-list">
+                <div class="empty-state">Basket vuoto</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="statusbar">
+            <div class="stats">
+              <span class="stat">Righe <strong id="rowStat">0</strong></span>
+              <span class="stat">Colonne <strong id="columnStat">0</strong></span>
+              <span class="stat">Visibili <strong id="visibleStat">0</strong></span>
+              <span class="stat">File <strong id="sizeStat">-</strong></span>
+            </div>
+            <div class="table-actions">
+              <button id="scrollTableLeft" class="button" type="button">&lt;</button>
+              <button id="scrollTableRight" class="button" type="button">&gt;</button>
+              <select id="pageSize" class="select-field" aria-label="Righe per pagina">
+                <option value="25">25 righe</option>
+                <option value="50" selected>50 righe</option>
+                <option value="100">100 righe</option>
+                <option value="200">200 righe</option>
+                <option value="all">Tutte</option>
+              </select>
+            </div>
+          </div>
+          <div id="tableWrap" class="table-wrap">
+            <div class="empty-state">Carica un CSV</div>
+          </div>
+          <div class="pager">
+            <div id="pageInfo" class="page-label">Pagina 0 di 0</div>
+            <div class="pager-controls">
+              <button id="firstPage" class="button" type="button">&lt;&lt;</button>
+              <button id="prevPage" class="button" type="button">&lt;</button>
+              <button id="nextPage" class="button" type="button">&gt;</button>
+              <button id="lastPage" class="button" type="button">&gt;&gt;</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      sourceName: "",
+      sourceSize: 0,
+      serverFiles: [],
+      headers: [],
+      rows: [],
+      columnMeta: [],
+      visibleColumns: new Set(),
+      filters: [],
+      globalSearch: "",
+      sort: { column: "", direction: "asc" },
+      page: 1,
+      pageSize: 50,
+      filteredRows: [],
+      selectedRowId: null,
+      basketIds: new Set(),
+      basketPositions: new Map(),
+      basketSortMode: "score",
+      basketScoreColumn: "",
+      basketPriceColumn: "",
+      fx: {
+        base: "EUR",
+        date: "",
+        rates: { EUR: 1 },
+        source: "",
+        stale: false,
+        status: "non caricati",
+      },
+      sectorCapPercent: 35,
+      countryCapPercent: 50,
+      basketCollapsed: false,
+      frozenColumns: new Set(),
+      autofillMessage: "Pronto",
+    };
+
+    const elements = {
+      fileSummary: document.getElementById("fileSummary"),
+      serverFileSelect: document.getElementById("serverFileSelect"),
+      reloadButton: document.getElementById("reloadButton"),
+      fileInput: document.getElementById("fileInput"),
+      exportButton: document.getElementById("exportButton"),
+      basketPanel: document.getElementById("basketPanel"),
+      basketBody: document.getElementById("basketBody"),
+      basketSummary: document.getElementById("basketSummary"),
+      basketScoreColumn: document.getElementById("basketScoreColumn"),
+      basketTargetCount: document.getElementById("basketTargetCount"),
+      basketPortfolioValue: document.getElementById("basketPortfolioValue"),
+      refreshFxRates: document.getElementById("refreshFxRates"),
+      fxRateStatus: document.getElementById("fxRateStatus"),
+      addSelectedToBasket: document.getElementById("addSelectedToBasket"),
+      autofillBasket: document.getElementById("autofillBasket"),
+      marketCapWeightBasket: document.getElementById("marketCapWeightBasket"),
+      scoreWeightBasket: document.getElementById("scoreWeightBasket"),
+      exportBasket: document.getElementById("exportBasket"),
+      exportAutofillConfig: document.getElementById("exportAutofillConfig"),
+      importAutofillConfig: document.getElementById("importAutofillConfig"),
+      importAutofillConfigFile: document.getElementById("importAutofillConfigFile"),
+      clearBasket: document.getElementById("clearBasket"),
+      toggleBasket: document.getElementById("toggleBasket"),
+      autofillCapSummary: document.getElementById("autofillCapSummary"),
+      sectorCapSlider: document.getElementById("sectorCapSlider"),
+      sectorCapNumber: document.getElementById("sectorCapNumber"),
+      countryCapSlider: document.getElementById("countryCapSlider"),
+      countryCapNumber: document.getElementById("countryCapNumber"),
+      marketCapFilterSummary: document.getElementById("marketCapFilterSummary"),
+      autofillMarketCapMin: document.getElementById("autofillMarketCapMin"),
+      autofillMarketCapMax: document.getElementById("autofillMarketCapMax"),
+      scoreQualityFilterSummary: document.getElementById("scoreQualityFilterSummary"),
+      autofillCompletenessMin: document.getElementById("autofillCompletenessMin"),
+      autofillIndicatorScoreMin: document.getElementById("autofillIndicatorScoreMin"),
+      autofillIndicatorExceptionMax: document.getElementById("autofillIndicatorExceptionMax"),
+      autofillStatus: document.getElementById("autofillStatus"),
+      basketStats: document.getElementById("basketStats"),
+      scoreChart: document.getElementById("scoreChart"),
+      scoreHighlights: document.getElementById("scoreHighlights"),
+      countryPie: document.getElementById("countryPie"),
+      sectorPie: document.getElementById("sectorPie"),
+      basketList: document.getElementById("basketList"),
+      globalSearch: document.getElementById("globalSearch"),
+      filterColumn: document.getElementById("filterColumn"),
+      filterOperator: document.getElementById("filterOperator"),
+      filterValue: document.getElementById("filterValue"),
+      filterBetween: document.getElementById("filterBetween"),
+      filterMin: document.getElementById("filterMin"),
+      filterMax: document.getElementById("filterMax"),
+      addFilterButton: document.getElementById("addFilterButton"),
+      filterChips: document.getElementById("filterChips"),
+      clearFiltersButton: document.getElementById("clearFiltersButton"),
+      activeFilterCount: document.getElementById("activeFilterCount"),
+      sortColumn: document.getElementById("sortColumn"),
+      sortDirection: document.getElementById("sortDirection"),
+      sortSummary: document.getElementById("sortSummary"),
+      applySortButton: document.getElementById("applySortButton"),
+      columnSearch: document.getElementById("columnSearch"),
+      columnList: document.getElementById("columnList"),
+      visibleColumnCount: document.getElementById("visibleColumnCount"),
+      showAllColumns: document.getElementById("showAllColumns"),
+      showBaseColumns: document.getElementById("showBaseColumns"),
+      showScoreColumns: document.getElementById("showScoreColumns"),
+      detailBody: document.getElementById("detailBody"),
+      detailSummary: document.getElementById("detailSummary"),
+      rowStat: document.getElementById("rowStat"),
+      columnStat: document.getElementById("columnStat"),
+      visibleStat: document.getElementById("visibleStat"),
+      sizeStat: document.getElementById("sizeStat"),
+      pageSize: document.getElementById("pageSize"),
+      scrollTableLeft: document.getElementById("scrollTableLeft"),
+      scrollTableRight: document.getElementById("scrollTableRight"),
+      tableWrap: document.getElementById("tableWrap"),
+      pageInfo: document.getElementById("pageInfo"),
+      firstPage: document.getElementById("firstPage"),
+      prevPage: document.getElementById("prevPage"),
+      nextPage: document.getElementById("nextPage"),
+      lastPage: document.getElementById("lastPage"),
+    };
+
+    const operators = [
+      { value: "contains", label: "Contiene" },
+      { value: "not_contains", label: "Non contiene" },
+      { value: "equals", label: "Uguale" },
+      { value: "empty", label: "Vuoto" },
+      { value: "not_empty", label: "Non vuoto" },
+      { value: "gte", label: ">=" },
+      { value: "lte", label: "<=" },
+      { value: "between", label: "Tra" },
+    ];
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return "-";
+      const units = ["B", "KB", "MB", "GB"];
+      let size = bytes;
+      let unitIndex = 0;
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+      }
+      const digits = unitIndex === 0 ? 0 : 1;
+      return `${size.toFixed(digits)} ${units[unitIndex]}`;
+    }
+
+    function formatNumber(value, digits = 2) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "-";
+      return number.toLocaleString("it-IT", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: digits,
+      });
+    }
+
+    function formatMoney(value) {
+      return `${formatNumber(value, 2)} EUR`;
+    }
+
+    function formatWeight(value, useValueWeights) {
+      return useValueWeights ? formatMoney(value) : String(Math.round(value));
+    }
+
+    function formatCompactWeight(value, useValueWeights) {
+      if (!useValueWeights) return String(Math.round(value));
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "-";
+      return number.toLocaleString("it-IT", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+      });
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let field = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        if (inQuotes) {
+          if (char === '"') {
+            if (text[i + 1] === '"') {
+              field += '"';
+              i += 1;
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            field += char;
+          }
+        } else if (char === '"') {
+          inQuotes = true;
+        } else if (char === ",") {
+          row.push(field);
+          field = "";
+        } else if (char === "\n") {
+          row.push(field);
+          if (row.some((cell) => cell !== "")) {
+            rows.push(row);
+          }
+          row = [];
+          field = "";
+        } else if (char !== "\r") {
+          field += char;
+        }
+      }
+
+      if (field !== "" || row.length > 0) {
+        row.push(field);
+        if (row.some((cell) => cell !== "")) {
+          rows.push(row);
+        }
+      }
+
+      if (rows.length === 0) {
+        return { headers: [], rows: [] };
+      }
+
+      const headers = rows[0].map((header, index) => {
+        const clean = index === 0 ? header.replace(/^\uFEFF/, "") : header;
+        return clean.trim() || `col_${index + 1}`;
+      });
+
+      const dataRows = rows.slice(1).map((cells, index) => {
+        const normalized = headers.map((_, columnIndex) => cells[columnIndex] ?? "");
+        return { id: index + 1, cells: normalized };
+      });
+
+      return { headers, rows: dataRows };
+    }
+
+    function parseNumber(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return null;
+
+      let cleaned = raw.replace(/\s/g, "").replace(/%$/, "");
+      if (/^-?\d+,\d+$/.test(cleaned)) {
+        cleaned = cleaned.replace(",", ".");
+      } else {
+        cleaned = cleaned.replace(/,/g, "");
+      }
+
+      const number = Number(cleaned);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function analyzeColumns() {
+      state.columnMeta = state.headers.map((name, index) => {
+        let numeric = 0;
+        let nonEmpty = 0;
+        const unique = new Set();
+
+        state.rows.forEach((row) => {
+          const value = row.cells[index];
+          const text = String(value ?? "").trim();
+          if (text) {
+            nonEmpty += 1;
+            if (unique.size < 50) unique.add(text);
+            if (parseNumber(text) !== null) numeric += 1;
+          }
+        });
+
+        const isNumeric = nonEmpty > 0 && numeric / nonEmpty >= 0.82;
+        return {
+          name,
+          index,
+          isNumeric,
+          nonEmpty,
+          uniqueCount: unique.size,
+        };
+      });
+    }
+
+    function baseColumnNames() {
+      const preferred = [
+        "market",
+        "symbol",
+        "yahoo_symbol",
+        "isin",
+        "name",
+        "currency",
+        "exchange",
+        "quote_type",
+        "country",
+        "sector",
+        "industry",
+        "fitness_config",
+        "valid_score_weight_pct",
+        "weighted_score_before_penalty",
+        "missing_penalty",
+        "fitness_score",
+      ];
+      return new Set(preferred.filter((name) => state.headers.includes(name)));
+    }
+
+    function scoreColumnNames() {
+      return new Set(
+        state.headers.filter((name) => name === "fitness_score" || name.endsWith("_score")),
+      );
+    }
+
+    function indicatorScoreColumnNames() {
+      return state.headers.filter((name) => (
+        name.endsWith("_score")
+        && name !== "fitness_score"
+        && name !== state.basketScoreColumn
+      ));
+    }
+
+    function scoreCandidateNames() {
+      const preferred = state.headers.filter((name) => name === "fitness_score" || name.endsWith("_score"));
+      const numeric = state.columnMeta
+        .filter((meta) => meta.isNumeric && !preferred.includes(meta.name))
+        .map((meta) => meta.name);
+      return [...preferred, ...numeric];
+    }
+
+    function buildBasketScoreOptions() {
+      const candidates = scoreCandidateNames();
+      elements.basketScoreColumn.innerHTML = "";
+
+      if (candidates.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Nessun voto";
+        elements.basketScoreColumn.appendChild(option);
+        state.basketScoreColumn = "";
+        return;
+      }
+
+      candidates.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        elements.basketScoreColumn.appendChild(option);
+      });
+
+      const defaultScore = candidates.includes("fitness_score") ? "fitness_score" : candidates[0];
+      state.basketScoreColumn = candidates.includes(state.basketScoreColumn)
+        ? state.basketScoreColumn
+        : defaultScore;
+      elements.basketScoreColumn.value = state.basketScoreColumn;
+    }
+
+    function columnValue(row, columnName) {
+      const index = state.headers.indexOf(columnName);
+      return index >= 0 ? String(row.cells[index] ?? "").trim() : "";
+    }
+
+    function firstColumnValue(row, names) {
+      for (const name of names) {
+        const value = columnValue(row, name);
+        if (value) return value;
+      }
+      return "";
+    }
+
+    function rowScore(row) {
+      const value = columnValue(row, state.basketScoreColumn);
+      return parseNumber(value);
+    }
+
+    function normalizeFieldName(value) {
+      return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    function aliasedColumnName(aliases) {
+      const normalizedAliases = new Set(aliases.map(normalizeFieldName));
+      return state.headers.find((header) => normalizedAliases.has(normalizeFieldName(header))) || "";
+    }
+
+    function marketCapColumnName() {
+      return aliasedColumnName([
+        "market_cap",
+        "marketcap",
+        "intradaymarketcap",
+        "intraday_market_cap",
+        "mkt_cap",
+        "mktcap",
+        "market_capitalization",
+        "marketcapitalization",
+        "capitalization",
+        "capitalizzazione",
+      ]);
+    }
+
+    function rowMarketCap(row) {
+      const columnName = marketCapColumnName();
+      if (!columnName) return null;
+      return parseNumber(columnValue(row, columnName));
+    }
+
+    function detectBasketPriceColumn() {
+      const preferredNames = new Set([
+        "price",
+        "lastprice",
+        "last_price",
+        "currentprice",
+        "current_price",
+        "regularmarketprice",
+        "regular_market_price",
+        "marketprice",
+        "market_price",
+        "shareprice",
+        "share_price",
+        "close",
+        "previousclose",
+        "previous_close",
+      ]);
+      const direct = state.columnMeta.find((meta) => (
+        meta.isNumeric && preferredNames.has(meta.name.trim().toLowerCase())
+      ));
+      if (direct) return direct.name;
+
+      const loose = state.columnMeta.find((meta) => {
+        const key = meta.name.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        return meta.isNumeric && preferredNames.has(key);
+      });
+      return loose?.name || "";
+    }
+
+    function portfolioTargetValue() {
+      return Math.max(0, Number(elements.basketPortfolioValue.value) || 0);
+    }
+
+    function detectedPrice(row) {
+      if (!state.basketPriceColumn) return 0;
+      return Math.max(0, parseNumber(columnValue(row, state.basketPriceColumn)) || 0);
+    }
+
+    function ensureBasketPosition(row) {
+      const current = state.basketPositions.get(row.id);
+      if (current) return current;
+      const position = {
+        shares: 1,
+        price: detectedPrice(row),
+      };
+      state.basketPositions.set(row.id, position);
+      return position;
+    }
+
+    function updateBasketPosition(rowId, patch) {
+      const row = state.rows.find((item) => item.id === rowId);
+      if (!row) return;
+      const current = ensureBasketPosition(row);
+      const next = {
+        shares: Math.max(0, Math.floor(Number(patch.shares ?? current.shares) || 0)),
+        price: Math.max(0, Number(patch.price ?? current.price) || 0),
+      };
+      state.basketPositions.set(rowId, next);
+      state.autofillMessage = "Pesi aggiornati";
+      renderBasket();
+    }
+
+    function basketValue(row) {
+      const position = ensureBasketPosition(row);
+      return Math.max(0, position.shares * euroPrice(row));
+    }
+
+    function basketTotalValue(rows) {
+      return rows.reduce((total, row) => total + basketValue(row), 0);
+    }
+
+    function rowWeight(row, useValueWeights) {
+      if (!useValueWeights) return 1;
+      return basketValue(row);
+    }
+
+    function rowLabel(row) {
+      const symbol = firstColumnValue(row, ["symbol", "yahoo_symbol", "isin"]) || `Riga ${row.id}`;
+      const name = firstColumnValue(row, ["name", "company", "company_name"]);
+      return { symbol, name };
+    }
+
+    function normalizeBucket(value) {
+      return String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function sectorValue(row) {
+      return columnValue(row, "sector") || "N/D";
+    }
+
+    function countryValue(row) {
+      return columnValue(row, "country") || "N/D";
+    }
+
+    function industryValue(row) {
+      return columnValue(row, "industry") || "N/D";
+    }
+
+    function normalizeCurrency(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return "EUR";
+      if (raw === "GBp" || raw.toUpperCase() === "GBX" || /pence/i.test(raw)) return "GBX";
+      const key = raw.toUpperCase().replace(/\s+/g, "");
+      const aliases = {
+        "€": "EUR",
+        EURO: "EUR",
+        EUROS: "EUR",
+        "$": "USD",
+        "US$": "USD",
+        "U$D": "USD",
+      };
+      return aliases[key] || key;
+    }
+
+    function rowCurrency(row) {
+      return normalizeCurrency(
+        firstColumnValue(row, ["currency", "price_currency", "quote_currency", "trading_currency"]),
+      );
+    }
+
+    function fxRate(currency) {
+      const normalized = normalizeCurrency(currency);
+      if (normalized === "EUR") return 1;
+      if (normalized === "GBX") return state.fx.rates.GBP || null;
+      return state.fx.rates[normalized] || null;
+    }
+
+    function priceToEuro(price, currency) {
+      const normalized = normalizeCurrency(currency);
+      const amount = Number(price) || 0;
+      if (amount <= 0) return 0;
+      if (normalized === "EUR") return amount;
+      const rate = fxRate(normalized);
+      if (!rate) return 0;
+      return normalized === "GBX" ? amount / 100 / rate : amount / rate;
+    }
+
+    function cashAmountToEuro(amount, currency) {
+      const normalized = normalizeCurrency(currency);
+      const value = Number(amount) || 0;
+      if (value <= 0) return 0;
+      if (normalized === "EUR") return value;
+      const rate = normalized === "GBX" ? fxRate("GBP") : fxRate(normalized);
+      return rate ? value / rate : 0;
+    }
+
+    function euroPrice(row) {
+      const position = ensureBasketPosition(row);
+      return priceToEuro(position.price, rowCurrency(row));
+    }
+
+    function marketCapEuro(row) {
+      return cashAmountToEuro(rowMarketCap(row), rowCurrency(row));
+    }
+
+    function setColumns(mode) {
+      if (mode === "base") {
+        state.visibleColumns = baseColumnNames();
+      } else if (mode === "score") {
+        const columns = scoreColumnNames();
+        ["market", "symbol", "name", "sector", "industry"].forEach((name) => {
+          if (state.headers.includes(name)) columns.add(name);
+        });
+        state.visibleColumns = columns;
+      } else {
+        state.visibleColumns = new Set(state.headers);
+      }
+
+      if (state.visibleColumns.size === 0 && state.headers.length > 0) {
+        state.visibleColumns = new Set(state.headers.slice(0, Math.min(12, state.headers.length)));
+      }
+      state.page = 1;
+      renderAll();
+    }
+
+    function buildColumnOptions(selectElement, includeEmpty = false) {
+      selectElement.innerHTML = "";
+      if (includeEmpty) {
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "-";
+        selectElement.appendChild(empty);
+      }
+      state.headers.forEach((header) => {
+        const option = document.createElement("option");
+        option.value = header;
+        option.textContent = header;
+        selectElement.appendChild(option);
+      });
+    }
+
+    function syncFrozenColumns() {
+      state.frozenColumns = new Set(
+        [...state.frozenColumns].filter((header) => state.headers.includes(header)),
+      );
+    }
+
+    function toggleFrozenColumn(header) {
+      if (state.frozenColumns.has(header)) {
+        state.frozenColumns.delete(header);
+      } else {
+        state.frozenColumns.add(header);
+      }
+      renderAll();
+    }
+
+    function renderOperators() {
+      const current = elements.filterOperator.value || "contains";
+      elements.filterOperator.innerHTML = "";
+      operators.forEach((operator) => {
+        const option = document.createElement("option");
+        option.value = operator.value;
+        option.textContent = operator.label;
+        elements.filterOperator.appendChild(option);
+      });
+      elements.filterOperator.value = current;
+      updateFilterInputs();
+    }
+
+    function updateFilterInputs() {
+      const op = elements.filterOperator.value;
+      const needsSingleValue = !["empty", "not_empty", "between"].includes(op);
+      elements.filterValue.hidden = !needsSingleValue;
+      elements.filterBetween.hidden = op !== "between";
+    }
+
+    function loadCsvText(text, sourceName, sourceSize) {
+      const parsed = parseCsv(text);
+      state.sourceName = sourceName;
+      state.sourceSize = sourceSize || text.length;
+      state.headers = parsed.headers;
+      state.rows = parsed.rows;
+      state.filters = [];
+      state.globalSearch = "";
+      state.sort = { column: "", direction: "asc" };
+      state.page = 1;
+      state.selectedRowId = null;
+      state.basketIds = new Set();
+      state.basketPositions = new Map();
+      state.basketScoreColumn = "";
+      state.basketPriceColumn = "";
+      state.frozenColumns = new Set(state.headers.includes("name") ? ["name"] : []);
+      state.autofillMessage = "Pronto";
+      elements.globalSearch.value = "";
+      elements.columnSearch.value = "";
+      analyzeColumns();
+      state.basketPriceColumn = detectBasketPriceColumn();
+      buildColumnOptions(elements.filterColumn);
+      buildColumnOptions(elements.sortColumn, true);
+      buildBasketScoreOptions();
+      renderOperators();
+      setColumns("all");
+      if (currenciesInRows(state.rows).size > 0) {
+        void loadFxRates(false);
+      }
+    }
+
+    async function loadServerFile(relativePath) {
+      if (!relativePath) return;
+      elements.tableWrap.innerHTML = '<div class="loading">Caricamento CSV</div>';
+      const response = await fetch(`/api/csv?path=${encodeURIComponent(relativePath)}`);
+      if (!response.ok) {
+        throw new Error(`Errore ${response.status}`);
+      }
+      const text = await response.text();
+      const fileInfo = state.serverFiles.find((file) => file.path === relativePath);
+      loadCsvText(text, relativePath, fileInfo?.size || text.length);
+    }
+
+    async function fetchServerFiles() {
+      try {
+        const response = await fetch("/api/files");
+        if (!response.ok) throw new Error(`Errore ${response.status}`);
+        const payload = await response.json();
+        state.serverFiles = payload.files || [];
+      } catch (error) {
+        state.serverFiles = [];
+      }
+
+      renderServerFileSelect();
+      const preferred = state.serverFiles.find((file) => file.path.endsWith("test_dataset_fitness.csv"));
+      const first = preferred || state.serverFiles[0];
+      if (first) {
+        elements.serverFileSelect.value = first.path;
+        await loadServerFile(first.path);
+      }
+    }
+
+    function renderServerFileSelect() {
+      elements.serverFileSelect.innerHTML = "";
+      if (state.serverFiles.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Nessun CSV locale";
+        elements.serverFileSelect.appendChild(option);
+        return;
+      }
+
+      state.serverFiles.forEach((file) => {
+        const option = document.createElement("option");
+        option.value = file.path;
+        option.textContent = `${file.path} (${formatBytes(file.size)})`;
+        elements.serverFileSelect.appendChild(option);
+      });
+    }
+
+    function addFilter() {
+      const column = elements.filterColumn.value;
+      const operator = elements.filterOperator.value;
+      if (!column || !operator) return;
+
+      const filter = { column, operator, value: "", min: "", max: "" };
+      if (operator === "between") {
+        filter.min = elements.filterMin.value.trim();
+        filter.max = elements.filterMax.value.trim();
+        if (!filter.min && !filter.max) return;
+      } else if (!["empty", "not_empty"].includes(operator)) {
+        filter.value = elements.filterValue.value.trim();
+        if (!filter.value) return;
+      }
+
+      state.filters.push(filter);
+      elements.filterValue.value = "";
+      elements.filterMin.value = "";
+      elements.filterMax.value = "";
+      state.page = 1;
+      applyAndRender();
+    }
+
+    function removeFilter(index) {
+      state.filters.splice(index, 1);
+      state.page = 1;
+      applyAndRender();
+    }
+
+    function clearFilters() {
+      state.filters = [];
+      state.globalSearch = "";
+      state.page = 1;
+      elements.globalSearch.value = "";
+      applyAndRender();
+    }
+
+    function rowMatchesGlobalSearch(row) {
+      const needle = state.globalSearch.trim().toLowerCase();
+      if (!needle) return true;
+      return row.cells.some((cell) => String(cell ?? "").toLowerCase().includes(needle));
+    }
+
+    function rowMatchesFilter(row, filter) {
+      const index = state.headers.indexOf(filter.column);
+      if (index < 0) return true;
+
+      const value = String(row.cells[index] ?? "");
+      const text = value.trim();
+      const lowerText = text.toLowerCase();
+      const lowerValue = String(filter.value ?? "").toLowerCase();
+
+      if (filter.operator === "empty") return text === "";
+      if (filter.operator === "not_empty") return text !== "";
+      if (filter.operator === "contains") return lowerText.includes(lowerValue);
+      if (filter.operator === "not_contains") return !lowerText.includes(lowerValue);
+      if (filter.operator === "equals") return lowerText === lowerValue;
+
+      const numeric = parseNumber(text);
+      if (numeric === null) return false;
+
+      if (filter.operator === "gte") {
+        const threshold = parseNumber(filter.value);
+        return threshold === null ? true : numeric >= threshold;
+      }
+      if (filter.operator === "lte") {
+        const threshold = parseNumber(filter.value);
+        return threshold === null ? true : numeric <= threshold;
+      }
+      if (filter.operator === "between") {
+        const min = parseNumber(filter.min);
+        const max = parseNumber(filter.max);
+        return (min === null || numeric >= min) && (max === null || numeric <= max);
+      }
+
+      return true;
+    }
+
+    function compareRows(left, right) {
+      if (!state.sort.column) return 0;
+      const index = state.headers.indexOf(state.sort.column);
+      if (index < 0) return 0;
+
+      const meta = state.columnMeta[index];
+      const leftValue = left.cells[index];
+      const rightValue = right.cells[index];
+      let result = 0;
+
+      if (meta?.isNumeric) {
+        const leftNumber = parseNumber(leftValue);
+        const rightNumber = parseNumber(rightValue);
+        if (leftNumber === null && rightNumber === null) result = 0;
+        else if (leftNumber === null) result = 1;
+        else if (rightNumber === null) result = -1;
+        else result = leftNumber - rightNumber;
+      } else {
+        result = String(leftValue ?? "").localeCompare(String(rightValue ?? ""), "it", {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
+
+      return state.sort.direction === "desc" ? -result : result;
+    }
+
+    function getFilteredRows() {
+      const filtered = state.rows.filter((row) => {
+        return rowMatchesGlobalSearch(row) && state.filters.every((filter) => rowMatchesFilter(row, filter));
+      });
+
+      if (state.sort.column) {
+        filtered.sort(compareRows);
+      }
+      return filtered;
+    }
+
+    function applyAndRender() {
+      state.filteredRows = getFilteredRows();
+      const maxPage = getMaxPage();
+      if (state.page > maxPage) state.page = maxPage;
+      if (state.page < 1) state.page = 1;
+      renderAll();
+    }
+
+    function getVisibleIndexes() {
+      return state.headers
+        .map((header, index) => ({ header, index }))
+        .filter((item) => state.visibleColumns.has(item.header));
+    }
+
+    function getPageRows() {
+      if (state.pageSize === "all") return state.filteredRows;
+      const start = (state.page - 1) * state.pageSize;
+      return state.filteredRows.slice(start, start + state.pageSize);
+    }
+
+    function getMaxPage() {
+      if (state.pageSize === "all") return 1;
+      return Math.max(1, Math.ceil(state.filteredRows.length / state.pageSize));
+    }
+
+    function renderAll() {
+      state.filteredRows = getFilteredRows();
+      renderSummary();
+      renderFilterChips();
+      renderColumnList();
+      syncFrozenColumns();
+      renderBasket();
+      renderTable();
+      renderDetail();
+      renderPager();
+    }
+
+    function renderSummary() {
+      const visibleCount = state.visibleColumns.size;
+      const filterText = state.filters.length === 1 ? "1 filtro" : `${state.filters.length} filtri`;
+      const source = state.sourceName || "Nessun CSV caricato";
+      elements.fileSummary.textContent = state.headers.length
+        ? `${source} - ${state.rows.length} righe, ${state.headers.length} colonne`
+        : source;
+      elements.rowStat.textContent = `${state.filteredRows.length}/${state.rows.length}`;
+      elements.columnStat.textContent = state.headers.length;
+      elements.visibleStat.textContent = visibleCount;
+      elements.sizeStat.textContent = formatBytes(state.sourceSize);
+      elements.activeFilterCount.textContent = filterText;
+      elements.visibleColumnCount.textContent = `${visibleCount}/${state.headers.length}`;
+      elements.sortSummary.textContent = state.sort.column ? `${state.sort.column} ${state.sort.direction.toUpperCase()}` : "Nessuno";
+    }
+
+    function renderFilterChips() {
+      elements.filterChips.innerHTML = "";
+      state.filters.forEach((filter, index) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        const label = filter.operator === "between"
+          ? `${filter.column} tra ${filter.min || "-"} e ${filter.max || "-"}`
+          : ["empty", "not_empty"].includes(filter.operator)
+            ? `${filter.column} ${operatorLabel(filter.operator)}`
+            : `${filter.column} ${operatorLabel(filter.operator)} ${filter.value}`;
+        chip.innerHTML = `<span title="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "x";
+        button.addEventListener("click", () => removeFilter(index));
+        chip.appendChild(button);
+        elements.filterChips.appendChild(chip);
+      });
+    }
+
+    function operatorLabel(value) {
+      return operators.find((operator) => operator.value === value)?.label || value;
+    }
+
+    function renderColumnList() {
+      const query = elements.columnSearch.value.trim().toLowerCase();
+      elements.columnList.innerHTML = "";
+      state.columnMeta
+        .filter((meta) => !query || meta.name.toLowerCase().includes(query))
+        .forEach((meta) => {
+          const label = document.createElement("label");
+          label.className = "column-item";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = state.visibleColumns.has(meta.name);
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              state.visibleColumns.add(meta.name);
+            } else {
+              state.visibleColumns.delete(meta.name);
+            }
+            renderAll();
+          });
+
+          const name = document.createElement("span");
+          name.textContent = meta.name;
+          name.title = meta.name;
+
+          const type = document.createElement("small");
+          type.textContent = meta.isNumeric ? "num" : "txt";
+
+          label.appendChild(checkbox);
+          label.appendChild(name);
+          label.appendChild(type);
+          elements.columnList.appendChild(label);
+        });
+    }
+
+    function basketRows() {
+      return state.rows.filter((row) => state.basketIds.has(row.id));
+    }
+
+    function addSelectedRowToBasket() {
+      if (!state.selectedRowId) {
+        state.autofillMessage = "Seleziona una riga";
+        renderBasket();
+        return;
+      }
+      state.basketIds.add(state.selectedRowId);
+      const row = state.rows.find((item) => item.id === state.selectedRowId);
+      if (row) ensureBasketPosition(row);
+      state.autofillMessage = "Riga aggiunta";
+      renderAll();
+    }
+
+    function removeBasketRow(rowId) {
+      state.basketIds.delete(rowId);
+      state.basketPositions.delete(rowId);
+      state.autofillMessage = "Riga rimossa";
+      renderAll();
+    }
+
+    function clearBasket() {
+      state.basketIds = new Set();
+      state.basketPositions = new Map();
+      state.autofillMessage = "Basket svuotato";
+      renderAll();
+    }
+
+    function toggleBasketCollapsed() {
+      state.basketCollapsed = !state.basketCollapsed;
+      renderBasketCollapse();
+    }
+
+    function renderBasketCollapse() {
+      elements.basketBody.hidden = state.basketCollapsed;
+      elements.basketPanel.classList.toggle("is-collapsed", state.basketCollapsed);
+      elements.toggleBasket.innerHTML = state.basketCollapsed ? "&darr;" : "&uarr;";
+      elements.toggleBasket.title = state.basketCollapsed ? "Espandi basket" : "Comprimi basket";
+      elements.toggleBasket.setAttribute("aria-label", elements.toggleBasket.title);
+      elements.toggleBasket.setAttribute("aria-expanded", String(!state.basketCollapsed));
+    }
+
+    function countBy(rows, getter) {
+      const counts = new Map();
+      rows.forEach((row) => {
+        const label = getter(row) || "N/D";
+        const key = normalizeBucket(label) || "n/d";
+        const item = counts.get(key) || { label, count: 0 };
+        item.count += 1;
+        counts.set(key, item);
+      });
+      return counts;
+    }
+
+    function weightedBy(rows, getter, useValueWeights) {
+      const counts = new Map();
+      rows.forEach((row) => {
+        const weight = rowWeight(row, useValueWeights);
+        if (weight <= 0) return;
+        const label = getter(row) || "N/D";
+        const key = normalizeBucket(label) || "n/d";
+        const item = counts.get(key) || { label, count: 0 };
+        item.count += weight;
+        counts.set(key, item);
+      });
+      return counts;
+    }
+
+    function scoreSummary(rows, useValueWeights = false) {
+      const scoredRows = rows
+        .map((row) => ({ score: rowScore(row), weight: rowWeight(row, useValueWeights) }))
+        .filter((item) => item.score !== null && item.weight > 0);
+      const scores = scoredRows
+        .map((item) => item.score)
+        .sort((left, right) => left - right);
+      if (scores.length === 0) {
+        return {
+          count: 0,
+          average: null,
+          median: null,
+          min: null,
+          max: null,
+          highCount: 0,
+        };
+      }
+      const middle = Math.floor(scores.length / 2);
+      const median = scores.length % 2 === 0
+        ? (scores[middle - 1] + scores[middle]) / 2
+        : scores[middle];
+      const weightTotal = scoredRows.reduce((total, item) => total + item.weight, 0);
+      const weightedAverage = weightTotal > 0
+        ? scoredRows.reduce((total, item) => total + item.score * item.weight, 0) / weightTotal
+        : null;
+      return {
+        count: scores.length,
+        average: useValueWeights ? weightedAverage : scores.reduce((total, score) => total + score, 0) / scores.length,
+        median,
+        min: scores[0],
+        max: scores[scores.length - 1],
+        highCount: scores.filter((score) => score >= 8).length,
+      };
+    }
+
+    function clampPercent(value, fallback) {
+      const number = Math.round(Number(value));
+      if (!Number.isFinite(number)) return fallback;
+      return Math.max(5, Math.min(100, number));
+    }
+
+    function capLimitFor(percent, totalCount) {
+      if (percent >= 100) return totalCount;
+      return Math.max(1, Math.floor((totalCount * percent) / 100));
+    }
+
+    function marketCapFilterBounds() {
+      let min = Math.max(0, parseNumber(elements.autofillMarketCapMin.value) || 0);
+      let max = Math.max(0, parseNumber(elements.autofillMarketCapMax.value) || 0);
+      if (min && max && max < min) {
+        [min, max] = [max, min];
+      }
+      return {
+        min,
+        max: max > 0 ? max : 0,
+      };
+    }
+
+    function marketCapFilterLabel() {
+      const { min, max } = marketCapFilterBounds();
+      if (!min && !max) return "Qualsiasi";
+      if (min && max) return `${formatMoney(min)} - ${formatMoney(max)}`;
+      if (min) return `>= ${formatMoney(min)}`;
+      return `<= ${formatMoney(max)}`;
+    }
+
+    function passesMarketCapFilter(row) {
+      const { min, max } = marketCapFilterBounds();
+      if (!min && !max) return true;
+      const cap = marketCapEuro(row);
+      if (cap <= 0) return false;
+      if (min && cap < min) return false;
+      if (max && cap > max) return false;
+      return true;
+    }
+
+    function scoreQualityFilterBounds() {
+      return {
+        completenessMin: Math.max(0, Math.min(100, parseNumber(elements.autofillCompletenessMin.value) || 0)),
+        indicatorScoreMin: Math.max(0, Math.min(10, parseNumber(elements.autofillIndicatorScoreMin.value) || 0)),
+        indicatorExceptionMax: Math.max(0, Math.floor(parseNumber(elements.autofillIndicatorExceptionMax.value) || 0)),
+      };
+    }
+
+    function scoreQualityFilterLabel() {
+      const { completenessMin, indicatorScoreMin, indicatorExceptionMax } = scoreQualityFilterBounds();
+      const parts = [];
+      if (completenessMin > 0) parts.push(`compl. >= ${formatNumber(completenessMin, 0)}%`);
+      if (indicatorScoreMin > 0) {
+        parts.push(`ind. >= ${formatNumber(indicatorScoreMin, 1)} (${indicatorExceptionMax} exc.)`);
+      }
+      return parts.length ? parts.join(" - ") : "Qualsiasi";
+    }
+
+    function rowCompleteness(row) {
+      return parseNumber(columnValue(row, "valid_score_weight_pct"));
+    }
+
+    function passesScoreQualityFilter(row) {
+      const { completenessMin, indicatorScoreMin, indicatorExceptionMax } = scoreQualityFilterBounds();
+      if (completenessMin > 0) {
+        const completeness = rowCompleteness(row);
+        if (completeness === null || completeness < completenessMin) return false;
+      }
+
+      if (indicatorScoreMin > 0) {
+        const indicatorScores = indicatorScoreColumnNames()
+          .map((columnName) => parseNumber(columnValue(row, columnName)))
+          .filter((score) => score !== null);
+        if (indicatorScores.length === 0) return false;
+        const exceptions = indicatorScores.filter((score) => score < indicatorScoreMin).length;
+        if (exceptions > indicatorExceptionMax) return false;
+      }
+
+      return true;
+    }
+
+    function renderAutofillControls() {
+      elements.sectorCapSlider.value = state.sectorCapPercent;
+      elements.sectorCapNumber.value = state.sectorCapPercent;
+      elements.countryCapSlider.value = state.countryCapPercent;
+      elements.countryCapNumber.value = state.countryCapPercent;
+      elements.autofillCapSummary.textContent = `Settore ${state.sectorCapPercent}% - Paese ${state.countryCapPercent}%`;
+      elements.marketCapFilterSummary.textContent = marketCapFilterLabel();
+      elements.scoreQualityFilterSummary.textContent = scoreQualityFilterLabel();
+    }
+
+    function updateAutofillCap(kind, value) {
+      if (kind === "sector") {
+        state.sectorCapPercent = clampPercent(value, state.sectorCapPercent);
+      } else {
+        state.countryCapPercent = clampPercent(value, state.countryCapPercent);
+      }
+      state.autofillMessage = "Cap autofill aggiornati";
+      renderBasket();
+    }
+
+    function updateMarketCapFilter() {
+      state.autofillMessage = "Filtro market cap aggiornato";
+      renderBasket();
+    }
+
+    function updateScoreQualityFilter() {
+      state.autofillMessage = "Filtro qualità voto aggiornato";
+      renderBasket();
+    }
+
+    function currenciesInRows(rows) {
+      return new Set(
+        rows
+          .map(rowCurrency)
+          .filter((currency) => currency && currency !== "EUR"),
+      );
+    }
+
+    function missingFxCurrencies(rows) {
+      return [...currenciesInRows(rows)].filter((currency) => !fxRate(currency));
+    }
+
+    function renderFxStatus() {
+      const basketMissing = missingFxCurrencies(basketRows());
+      const datasetMissing = missingFxCurrencies(state.rows);
+      const missing = basketMissing.length ? basketMissing : datasetMissing;
+      let text = state.fx.status || "non caricati";
+      if (state.fx.date) text = `${state.fx.stale ? "cache" : "ECB"} ${state.fx.date}`;
+      if (missing.length > 0) text += ` - mancano ${missing.join(", ")}`;
+      elements.fxRateStatus.textContent = text;
+      elements.refreshFxRates.disabled = state.fx.status === "caricamento";
+    }
+
+    async function loadFxRates(showMessage = true) {
+      state.fx.status = "caricamento";
+      renderFxStatus();
+      try {
+        const response = await fetch("/api/fx");
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.error) {
+          throw new Error(payload.error || `Errore ${response.status}`);
+        }
+        state.fx = {
+          base: payload.base || "EUR",
+          date: payload.date || "",
+          rates: { EUR: 1, ...(payload.rates || {}) },
+          source: payload.source || "",
+          stale: Boolean(payload.stale),
+          status: payload.stale ? "cache" : "aggiornati",
+        };
+        if (showMessage) {
+          state.autofillMessage = payload.stale
+            ? "Cambi caricati da cache"
+            : "Cambi ECB aggiornati";
+        }
+      } catch (error) {
+        state.fx = {
+          ...state.fx,
+          status: "errore cambi",
+          error: error.message,
+        };
+        if (showMessage) state.autofillMessage = `Cambi non disponibili: ${error.message}`;
+      }
+      renderBasket();
+    }
+
+    function renderBasket() {
+      const rows = basketRows();
+      const totalValue = basketTotalValue(rows);
+      const targetValue = portfolioTargetValue();
+      const useValueWeights = totalValue > 0;
+      const scores = scoreSummary(rows, useValueWeights);
+      const sectorCounts = weightedBy(rows, sectorValue, useValueWeights);
+      const countryCounts = weightedBy(rows, countryValue, useValueWeights);
+      const weightTotal = useValueWeights ? totalValue : rows.length;
+      const averageLabel = useValueWeights ? "voto medio ponderato" : "voto medio";
+
+      renderAutofillControls();
+      renderFxStatus();
+      elements.basketSummary.textContent = rows.length
+        ? `${rows.length} stock - ${averageLabel} ${scores.average === null ? "-" : scores.average.toFixed(2)}`
+        : "0 stock";
+      elements.autofillStatus.textContent = state.autofillMessage || "Pronto";
+      elements.basketStats.innerHTML = `
+        <span class="stat">Stock <strong>${rows.length}</strong></span>
+        <span class="stat">Peso <strong>${useValueWeights ? "Valore" : "Numero"}</strong></span>
+        <span class="stat">Investito <strong>${totalValue > 0 ? formatMoney(totalValue) : "-"}</strong></span>
+        <span class="stat">Residuo <strong>${targetValue > 0 ? formatMoney(targetValue - totalValue) : "-"}</strong></span>
+        <span class="stat">Voti validi <strong>${scores.count}</strong></span>
+        <span class="stat">Media <strong>${scores.average === null ? "-" : scores.average.toFixed(2)}</strong></span>
+        <span class="stat">Mediana <strong>${scores.median === null ? "-" : scores.median.toFixed(2)}</strong></span>
+        <span class="stat">>=8 <strong>${scores.highCount}</strong></span>
+      `;
+
+      renderScoreBins(rows, useValueWeights);
+      renderScoreHighlights(scores);
+      renderPieChart(elements.countryPie, countryCounts, weightTotal, useValueWeights);
+      renderPieChart(elements.sectorPie, sectorCounts, weightTotal, useValueWeights);
+      renderBasketList(rows);
+      renderBasketCollapse();
+    }
+
+    function renderBarChart(container, counts, total) {
+      container.innerHTML = "";
+      if (total === 0) {
+        container.innerHTML = '<div class="page-label">-</div>';
+        return;
+      }
+
+      const items = [...counts.values()].sort((left, right) => {
+        if (right.count !== left.count) return right.count - left.count;
+        return left.label.localeCompare(right.label, "it", { sensitivity: "base" });
+      });
+      const visible = items.slice(0, 6);
+      const rest = items.slice(6);
+      if (rest.length > 0) {
+        visible.push({
+          label: "Altro",
+          count: rest.reduce((totalCount, item) => totalCount + item.count, 0),
+        });
+      }
+
+      const maxCount = Math.max(...visible.map((item) => item.count), 1);
+      visible.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "chart-row";
+        const width = Math.max(5, (item.count / maxCount) * 100);
+        row.innerHTML = `
+          <span class="chart-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
+          <span class="chart-track" aria-hidden="true"><span style="--bar-width: ${width}%"></span></span>
+          <span class="chart-count">${item.count}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderScoreBins(rows, useValueWeights = false) {
+      const bins = [
+        { label: "0-2", count: 0 },
+        { label: "2-4", count: 0 },
+        { label: "4-6", count: 0 },
+        { label: "6-8", count: 0 },
+        { label: "8-10", count: 0 },
+        { label: "N/D", count: 0 },
+      ];
+
+      rows.forEach((row) => {
+        const weight = rowWeight(row, useValueWeights);
+        if (weight <= 0) return;
+        const score = rowScore(row);
+        if (score === null) {
+          bins[5].count += weight;
+          return;
+        }
+        const index = score >= 10 ? 4 : Math.max(0, Math.min(4, Math.floor(score / 2)));
+        bins[index].count += weight;
+      });
+
+      elements.scoreChart.innerHTML = "";
+      const maxCount = Math.max(...bins.map((bin) => bin.count), 1);
+      bins.forEach((bin) => {
+        const item = document.createElement("div");
+        item.className = "score-bin";
+        const height = bin.count > 0 ? Math.max(8, (bin.count / maxCount) * 100) : 0;
+        item.innerHTML = `
+          <div class="score-bin-bar" aria-hidden="true"><span style="--score-height: ${height}%"></span></div>
+          <strong>${formatCompactWeight(bin.count, useValueWeights)}</strong>
+          <span>${escapeHtml(bin.label)}</span>
+        `;
+        elements.scoreChart.appendChild(item);
+      });
+    }
+
+    function renderScoreHighlights(scores) {
+      elements.scoreHighlights.innerHTML = `
+        <span class="stat">Min <strong>${scores.min === null ? "-" : scores.min.toFixed(2)}</strong></span>
+        <span class="stat">Max <strong>${scores.max === null ? "-" : scores.max.toFixed(2)}</strong></span>
+        <span class="stat">Range <strong>${scores.min === null ? "-" : (scores.max - scores.min).toFixed(2)}</strong></span>
+      `;
+    }
+
+    function renderPieChart(container, counts, total, useValueWeights = false) {
+      container.innerHTML = "";
+      if (total === 0) {
+        container.innerHTML = '<div class="target-empty">Nessun dato</div>';
+        return;
+      }
+
+      const palette = [
+        "#0f766e",
+        "#2563eb",
+        "#b45309",
+        "#c2410c",
+        "#64748b",
+        "#059669",
+        "#be123c",
+        "#0891b2",
+      ];
+      const sorted = [...counts.values()].sort((left, right) => {
+        if (right.count !== left.count) return right.count - left.count;
+        return left.label.localeCompare(right.label, "it", { sensitivity: "base" });
+      });
+      const visible = sorted.slice(0, 7);
+      const hidden = sorted.slice(7);
+      if (hidden.length > 0) {
+        visible.push({
+          label: "Altro",
+          count: hidden.reduce((sum, item) => sum + item.count, 0),
+        });
+      }
+
+      let cursor = 0;
+      const segments = visible.map((item, index) => {
+        const degrees = (item.count / total) * 360;
+        const start = cursor;
+        const end = cursor + degrees;
+        cursor = end;
+        return {
+          ...item,
+          color: palette[index % palette.length],
+          start,
+          end,
+        };
+      });
+      const gradient = segments
+        .map((segment) => `${segment.color} ${segment.start.toFixed(2)}deg ${segment.end.toFixed(2)}deg`)
+        .join(", ");
+
+      const donut = document.createElement("div");
+      donut.className = "donut-chart";
+      donut.style.setProperty("--pie-gradient", `conic-gradient(${gradient})`);
+      donut.innerHTML = `<span class="donut-total">${formatCompactWeight(total, useValueWeights)}</span>`;
+
+      const legend = document.createElement("div");
+      legend.className = "pie-legend";
+      segments.forEach((segment) => {
+        const percent = Math.round((segment.count / total) * 100);
+        const row = document.createElement("div");
+        row.className = "pie-legend-row";
+        row.innerHTML = `
+          <span class="pie-dot" style="--dot-color: ${segment.color}"></span>
+          <span class="pie-label" title="${escapeHtml(segment.label)}">${escapeHtml(segment.label)}</span>
+          <span class="pie-value">${formatWeight(segment.count, useValueWeights)} (${percent}%)</span>
+        `;
+        legend.appendChild(row);
+      });
+
+      container.appendChild(donut);
+      container.appendChild(legend);
+    }
+
+    function locateBasketRow(rowId) {
+      const row = state.rows.find((item) => item.id === rowId);
+      if (!row) return;
+
+      state.selectedRowId = rowId;
+      let visibleRows = getFilteredRows();
+      let rowIndex = visibleRows.findIndex((item) => item.id === rowId);
+
+      if (rowIndex < 0) {
+        state.filters = [];
+        state.globalSearch = "";
+        elements.globalSearch.value = "";
+        visibleRows = getFilteredRows();
+        rowIndex = visibleRows.findIndex((item) => item.id === rowId);
+        state.autofillMessage = "Filtri puliti per mostrare la stock";
+      } else {
+        state.autofillMessage = "Stock trovata nella tabella";
+      }
+
+      if (rowIndex >= 0) {
+        state.page = state.pageSize === "all"
+          ? 1
+          : Math.floor(rowIndex / state.pageSize) + 1;
+      }
+
+      renderAll();
+      scrollTableRowIntoView(rowId);
+    }
+
+    function scrollTableRowIntoView(rowId) {
+      requestAnimationFrame(() => {
+        const tableRow = elements.tableWrap.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (!tableRow) return;
+        tableRow.scrollIntoView({ block: "center", inline: "nearest" });
+        elements.tableWrap.scrollIntoView({ block: "nearest", inline: "nearest" });
+      });
+    }
+
+    function scrollTableHorizontally(direction) {
+      const distance = Math.max(220, Math.floor(elements.tableWrap.clientWidth * 0.75));
+      elements.tableWrap.scrollBy({
+        left: direction * distance,
+        behavior: "smooth",
+      });
+    }
+
+    function basketSortValue(row) {
+      if (state.basketSortMode === "market_cap") return marketCapEuro(row);
+      if (state.basketSortMode === "value") return basketValue(row);
+      return rowScore(row) ?? -Infinity;
+    }
+
+    function sortBasketRows(rows) {
+      return rows.slice().sort((left, right) => {
+        const rightValue = basketSortValue(right);
+        const leftValue = basketSortValue(left);
+        if (rightValue !== leftValue) return rightValue - leftValue;
+        return (rowScore(right) ?? -Infinity) - (rowScore(left) ?? -Infinity);
+      });
+    }
+
+    function renderBasketList(rows) {
+      elements.basketList.innerHTML = "";
+      if (rows.length === 0) {
+        elements.basketList.innerHTML = '<div class="empty-state">Basket vuoto</div>';
+        return;
+      }
+
+      sortBasketRows(rows)
+        .forEach((row) => {
+          const { symbol, name } = rowLabel(row);
+          const industry = industryValue(row);
+          const country = countryValue(row);
+          const score = rowScore(row);
+          const position = ensureBasketPosition(row);
+          const currency = rowCurrency(row);
+          const priceEuro = euroPrice(row);
+          const value = basketValue(row);
+          const item = document.createElement("div");
+          item.className = "basket-stock";
+          item.innerHTML = `
+            <div class="basket-stock-main">
+              <div class="basket-stock-title">
+                <strong title="${escapeHtml(symbol)}">${escapeHtml(symbol)}</strong>
+                <span class="basket-tag" title="Industria: ${escapeHtml(industry)}">${escapeHtml(industry)}</span>
+                <span class="basket-tag country-tag" title="Paese: ${escapeHtml(country)}">${escapeHtml(country)}</span>
+              </div>
+              <span class="basket-stock-name" title="${escapeHtml(name || `${sectorValue(row)} - ${country}`)}">${escapeHtml(name || `${sectorValue(row)} - ${country}`)}</span>
+            </div>
+            <span class="basket-score">${score === null ? "-" : score.toFixed(2)}</span>
+          `;
+
+          const sharesField = document.createElement("label");
+          sharesField.className = "position-field shares-field";
+          sharesField.innerHTML = "<span>Az.</span>";
+          const sharesInput = document.createElement("input");
+          sharesInput.type = "number";
+          sharesInput.min = "0";
+          sharesInput.step = "1";
+          sharesInput.value = String(position.shares);
+          sharesInput.setAttribute("aria-label", `Azioni ${symbol}`);
+          sharesInput.addEventListener("click", (event) => event.stopPropagation());
+          sharesInput.addEventListener("change", (event) => {
+            event.stopPropagation();
+            const shares = Math.max(0, Math.floor(Number(sharesInput.value) || 0));
+            sharesInput.value = String(shares);
+            updateBasketPosition(row.id, { shares });
+          });
+          sharesField.appendChild(sharesInput);
+
+          const priceField = document.createElement("label");
+          priceField.className = "position-field price-field";
+          priceField.innerHTML = `<span title="Prezzo in ${escapeHtml(currency)}">Prezzo ${escapeHtml(currency)}</span>`;
+          const priceInput = document.createElement("input");
+          priceInput.type = "number";
+          priceInput.min = "0";
+          priceInput.step = "0.01";
+          priceInput.placeholder = "0";
+          priceInput.value = position.price > 0 ? String(position.price) : "";
+          priceInput.setAttribute("aria-label", `Prezzo ${symbol}`);
+          priceInput.addEventListener("click", (event) => event.stopPropagation());
+          priceInput.addEventListener("change", (event) => {
+            event.stopPropagation();
+            const price = Math.max(0, Number(priceInput.value) || 0);
+            priceInput.value = price > 0 ? String(price) : "";
+            updateBasketPosition(row.id, { price });
+          });
+          priceField.appendChild(priceInput);
+
+          const valueLabel = document.createElement("span");
+          valueLabel.className = "position-value";
+          valueLabel.title = priceEuro > 0 ? `Prezzo EUR ${formatMoney(priceEuro)}` : "Controvalore EUR";
+          valueLabel.textContent = value > 0 ? formatMoney(value) : "0";
+
+          const button = document.createElement("button");
+          button.className = "icon-button remove-basket-button";
+          button.type = "button";
+          button.title = "Rimuovi";
+          button.textContent = "x";
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            removeBasketRow(row.id);
+          });
+
+          const findButton = document.createElement("button");
+          findButton.className = "icon-button find-button";
+          findButton.type = "button";
+          findButton.title = "Trova nella tabella";
+          findButton.textContent = "Vai";
+          findButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            locateBasketRow(row.id);
+          });
+
+          item.addEventListener("click", () => {
+            state.selectedRowId = row.id;
+            renderTable();
+            renderDetail();
+          });
+
+          item.appendChild(sharesField);
+          item.appendChild(priceField);
+          item.appendChild(valueLabel);
+          item.appendChild(findButton);
+          item.appendChild(button);
+          elements.basketList.appendChild(item);
+        });
+    }
+
+    function syncBasketPositions(rows) {
+      const selectedIds = new Set(rows.map((row) => row.id));
+      [...state.basketPositions.keys()].forEach((rowId) => {
+        if (!selectedIds.has(rowId)) state.basketPositions.delete(rowId);
+      });
+      rows.forEach((row) => ensureBasketPosition(row));
+    }
+
+    function applyDefaultPositions(rows) {
+      rows.forEach((row) => {
+        const position = ensureBasketPosition(row);
+        if (position.shares <= 0) position.shares = 1;
+        if (position.price <= 0) position.price = detectedPrice(row);
+      });
+      return {
+        target: 0,
+        invested: basketTotalValue(rows),
+        cash: 0,
+        unpriced: rows.filter((row) => ensureBasketPosition(row).price <= 0).length,
+      };
+    }
+
+    function allocatePortfolio(rows, targetValue) {
+      rows.forEach((row) => {
+        const position = ensureBasketPosition(row);
+        if (position.price <= 0) position.price = detectedPrice(row);
+        position.shares = 0;
+      });
+
+      const priced = rows
+        .map((row) => {
+          const position = ensureBasketPosition(row);
+          const priceEuro = priceToEuro(position.price, rowCurrency(row));
+          return {
+            row,
+            price: position.price,
+            priceEuro,
+            score: rowScore(row) ?? -Infinity,
+          };
+        })
+        .filter((item) => item.priceEuro > 0);
+
+      if (targetValue <= 0 || priced.length === 0) {
+        return {
+          target: targetValue,
+          invested: 0,
+          cash: targetValue,
+          unpriced: rows.length - priced.length,
+        };
+      }
+
+      const perStockBudget = targetValue / priced.length;
+      priced.forEach((item) => {
+        const position = ensureBasketPosition(item.row);
+        position.shares = Math.floor(perStockBudget / item.priceEuro);
+      });
+
+      let invested = basketTotalValue(rows);
+      let cash = Math.max(0, targetValue - invested);
+      const sorted = priced
+        .slice()
+        .sort((left, right) => {
+          if (right.score !== left.score) return right.score - left.score;
+          return left.priceEuro - right.priceEuro;
+        });
+      const minPrice = Math.min(...sorted.map((item) => item.priceEuro));
+      let guard = 0;
+
+      while (cash >= minPrice && guard < 20000) {
+        const next = sorted.find((item) => item.priceEuro <= cash);
+        if (!next) break;
+        ensureBasketPosition(next.row).shares += 1;
+        cash -= next.priceEuro;
+        guard += 1;
+      }
+
+      invested = basketTotalValue(rows);
+      return {
+        target: targetValue,
+        invested,
+        cash: Math.max(0, targetValue - invested),
+        unpriced: rows.length - priced.length,
+      };
+    }
+
+    function allocatePortfolioByMetric(rows, targetValue, metricValue, metricLabel) {
+      rows.forEach((row) => {
+        const position = ensureBasketPosition(row);
+        if (position.price <= 0) position.price = detectedPrice(row);
+      });
+
+      const items = rows.map((row) => {
+        const value = Math.max(0, Number(metricValue(row)) || 0);
+        const priceEuro = euroPrice(row);
+        return {
+          row,
+          value,
+          priceEuro,
+          targetWeight: 0,
+        };
+      });
+      const eligible = items.filter((item) => item.value > 0 && item.priceEuro > 0);
+      const totalMetric = eligible.reduce((total, item) => total + item.value, 0);
+
+      if (targetValue <= 0) {
+        return {
+          ok: false,
+          message: "Inserisci un capitale EUR o crea prima un controvalore nel basket",
+        };
+      }
+      if (eligible.length === 0 || totalMetric <= 0) {
+        return {
+          ok: false,
+          message: `Nessuna stock con ${metricLabel}, prezzo e cambio disponibili`,
+        };
+      }
+
+      rows.forEach((row) => {
+        ensureBasketPosition(row).shares = 0;
+      });
+
+      eligible.forEach((item) => {
+        item.targetWeight = item.value / totalMetric;
+        const targetBudget = targetValue * item.targetWeight;
+        ensureBasketPosition(item.row).shares = Math.floor(targetBudget / item.priceEuro);
+      });
+
+      let invested = basketTotalValue(rows);
+      let cash = Math.max(0, targetValue - invested);
+      const minPrice = Math.min(...eligible.map((item) => item.priceEuro));
+      let guard = 0;
+
+      while (cash >= minPrice && guard < 20000) {
+        invested = basketTotalValue(rows);
+        const denominator = Math.max(invested, 1);
+        const next = eligible
+          .filter((item) => item.priceEuro <= cash)
+          .sort((left, right) => {
+            const leftCurrent = basketValue(left.row) / denominator;
+            const rightCurrent = basketValue(right.row) / denominator;
+            const leftGap = left.targetWeight - leftCurrent;
+            const rightGap = right.targetWeight - rightCurrent;
+            if (rightGap !== leftGap) return rightGap - leftGap;
+            return right.value - left.value;
+          })[0];
+        if (!next) break;
+        ensureBasketPosition(next.row).shares += 1;
+        cash -= next.priceEuro;
+        guard += 1;
+      }
+
+      invested = basketTotalValue(rows);
+      return {
+        ok: true,
+        target: targetValue,
+        invested,
+        cash: Math.max(0, targetValue - invested),
+        eligible: eligible.length,
+        missingMetric: items.filter((item) => item.value <= 0).length,
+        missingPrice: items.filter((item) => item.value > 0 && item.priceEuro <= 0).length,
+      };
+    }
+
+    function allocatePortfolioByMarketCap(rows, targetValue) {
+      const marketCapColumn = marketCapColumnName();
+      if (!marketCapColumn) {
+        return {
+          ok: false,
+          message: "Colonna market cap non trovata",
+        };
+      }
+
+      const allocation = allocatePortfolioByMetric(rows, targetValue, marketCapEuro, "market cap");
+      return {
+        ...allocation,
+        marketCapColumn,
+      };
+    }
+
+    function allocatePortfolioByScore(rows, targetValue) {
+      if (!state.basketScoreColumn) {
+        return {
+          ok: false,
+          message: "Colonna voto non disponibile",
+        };
+      }
+
+      const allocation = allocatePortfolioByMetric(
+        rows,
+        targetValue,
+        (row) => Math.max(0, rowScore(row) || 0),
+        "score",
+      );
+      return {
+        ...allocation,
+        scoreColumn: state.basketScoreColumn,
+      };
+    }
+
+    async function weightBasketByMarketCap() {
+      const rows = basketRows();
+      if (rows.length === 0) {
+        state.autofillMessage = "Basket vuoto";
+        renderBasket();
+        return;
+      }
+
+      if (missingFxCurrencies(rows).length > 0 && !state.fx.date) {
+        await loadFxRates(false);
+      }
+
+      const targetValue = portfolioTargetValue() || basketTotalValue(rows);
+      const allocation = allocatePortfolioByMarketCap(rows, targetValue);
+      if (!allocation.ok) {
+        state.autofillMessage = allocation.message;
+        renderBasket();
+        return;
+      }
+
+      const parts = [
+        `Market cap: ${allocation.eligible}/${rows.length} stock`,
+        `investito ${formatMoney(allocation.invested)}/${formatMoney(allocation.target)}`,
+      ];
+      if (allocation.cash > 0) parts.push(`residuo ${formatMoney(allocation.cash)}`);
+      if (allocation.missingMetric > 0) parts.push(`${allocation.missingMetric} senza market cap`);
+      if (allocation.missingPrice > 0) parts.push(`${allocation.missingPrice} senza prezzo/cambio`);
+      parts.push(`colonna ${allocation.marketCapColumn}`);
+      state.basketSortMode = "market_cap";
+      state.autofillMessage = parts.join(" - ");
+      renderAll();
+    }
+
+    async function weightBasketByScore() {
+      const rows = basketRows();
+      if (rows.length === 0) {
+        state.autofillMessage = "Basket vuoto";
+        renderBasket();
+        return;
+      }
+
+      if (missingFxCurrencies(rows).length > 0 && !state.fx.date) {
+        await loadFxRates(false);
+      }
+
+      const targetValue = portfolioTargetValue() || basketTotalValue(rows);
+      const allocation = allocatePortfolioByScore(rows, targetValue);
+      if (!allocation.ok) {
+        state.autofillMessage = allocation.message;
+        renderBasket();
+        return;
+      }
+
+      const parts = [
+        `Score: ${allocation.eligible}/${rows.length} stock`,
+        `investito ${formatMoney(allocation.invested)}/${formatMoney(allocation.target)}`,
+      ];
+      if (allocation.cash > 0) parts.push(`residuo ${formatMoney(allocation.cash)}`);
+      if (allocation.missingMetric > 0) parts.push(`${allocation.missingMetric} senza score`);
+      if (allocation.missingPrice > 0) parts.push(`${allocation.missingPrice} senza prezzo/cambio`);
+      parts.push(`colonna ${allocation.scoreColumn}`);
+      state.basketSortMode = "score";
+      state.autofillMessage = parts.join(" - ");
+      renderAll();
+    }
+
+    function incrementBucket(counts, key) {
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+
+    async function autofillBasket() {
+      const requested = Math.max(1, Math.floor(Number(elements.basketTargetCount.value) || 0));
+      if (!state.rows.length || requested < 1) {
+        state.autofillMessage = "Nessun dataset caricato";
+        renderBasket();
+        return;
+      }
+
+      const bounds = marketCapFilterBounds();
+      const marketCapFilterActive = bounds.min > 0 || bounds.max > 0;
+      const qualityBounds = scoreQualityFilterBounds();
+      const scoreQualityFilterActive = qualityBounds.completenessMin > 0 || qualityBounds.indicatorScoreMin > 0;
+      if (marketCapFilterActive && !marketCapColumnName()) {
+        state.autofillMessage = "Colonna market cap non trovata";
+        renderBasket();
+        return;
+      }
+      if (qualityBounds.completenessMin > 0 && !state.headers.includes("valid_score_weight_pct")) {
+        state.autofillMessage = "Colonna valid_score_weight_pct non trovata";
+        renderBasket();
+        return;
+      }
+      if (qualityBounds.indicatorScoreMin > 0 && indicatorScoreColumnNames().length === 0) {
+        state.autofillMessage = "Nessuna colonna indicatore _score trovata";
+        renderBasket();
+        return;
+      }
+      if ((marketCapFilterActive || missingFxCurrencies(state.filteredRows).length > 0) && !state.fx.date) {
+        await loadFxRates(false);
+      }
+
+      const candidates = state.filteredRows
+        .slice()
+        .filter(passesMarketCapFilter)
+        .filter(passesScoreQualityFilter)
+        .filter((row) => rowScore(row) !== null)
+        .sort((left, right) => (rowScore(right) ?? -Infinity) - (rowScore(left) ?? -Infinity));
+      if (candidates.length === 0) {
+        state.autofillMessage = "Nessuna riga disponibile dopo filtri autofill";
+        renderBasket();
+        return;
+      }
+
+      const targetCount = Math.min(requested, candidates.length);
+      elements.basketTargetCount.value = targetCount;
+      const sectorLimit = capLimitFor(state.sectorCapPercent, targetCount);
+      const countryLimit = capLimitFor(state.countryCapPercent, targetCount);
+      const selected = [];
+      const used = new Set();
+      const sectorCounts = new Map();
+      const countryCounts = new Map();
+      const industryCounts = new Map();
+      const sectorIndustryCounts = new Map();
+
+      while (selected.length < targetCount && used.size < candidates.length) {
+        let bestRow = null;
+        let bestRank = -Infinity;
+        let bestScore = -Infinity;
+
+        candidates.forEach((row) => {
+          if (used.has(row.id)) return;
+          const sectorKey = normalizeBucket(sectorValue(row));
+          const countryKey = normalizeBucket(countryValue(row));
+          if ((sectorCounts.get(sectorKey) || 0) >= sectorLimit) return;
+          if ((countryCounts.get(countryKey) || 0) >= countryLimit) return;
+
+          const industryKey = normalizeBucket(industryValue(row));
+          const sectorIndustryKey = `${sectorKey}||${industryKey}`;
+          const score = rowScore(row);
+          const industryRepeat = industryKey === "n/d" ? 0 : (industryCounts.get(industryKey) || 0);
+          const sectorIndustryRepeat = industryKey === "n/d" ? 0 : (sectorIndustryCounts.get(sectorIndustryKey) || 0);
+          const sectorPressure = (sectorCounts.get(sectorKey) || 0) / Math.max(sectorLimit, 1);
+          const countryPressure = (countryCounts.get(countryKey) || 0) / Math.max(countryLimit, 1);
+          const rank = (score ?? -1000)
+            - industryRepeat * 2.0
+            - sectorIndustryRepeat * 1.2
+            - sectorPressure * 0.15
+            - countryPressure * 0.08;
+          if (rank > bestRank || (rank === bestRank && (score ?? -Infinity) > bestScore)) {
+            bestRank = rank;
+            bestScore = score ?? -Infinity;
+            bestRow = row;
+          }
+        });
+
+        if (!bestRow) break;
+        selected.push(bestRow);
+        used.add(bestRow.id);
+
+        const sectorKey = normalizeBucket(sectorValue(bestRow));
+        const countryKey = normalizeBucket(countryValue(bestRow));
+        const industryKey = normalizeBucket(industryValue(bestRow));
+        incrementBucket(sectorCounts, sectorKey);
+        incrementBucket(countryCounts, countryKey);
+        if (industryKey !== "n/d") {
+          incrementBucket(industryCounts, industryKey);
+          incrementBucket(sectorIndustryCounts, `${sectorKey}||${industryKey}`);
+        }
+      }
+
+      state.basketIds = new Set(selected.map((row) => row.id));
+      syncBasketPositions(selected);
+      const targetValue = portfolioTargetValue();
+      const allocation = targetValue > 0
+        ? allocatePortfolio(selected, targetValue)
+        : applyDefaultPositions(selected);
+      state.autofillMessage = autofillMessage(selected, targetCount, allocation, {
+        sectorLimit,
+        countryLimit,
+        marketCapFilterActive,
+        scoreQualityFilterActive,
+      });
+      renderAll();
+    }
+
+    function autofillMessage(rows, targetCount, allocation, diagnostics) {
+      const parts = [`Autofill: ${rows.length}/${targetCount}`];
+      const useValueWeights = allocation?.invested > 0;
+      const average = scoreSummary(rows, useValueWeights).average;
+      if (average !== null) parts.push(`${useValueWeights ? "media pond." : "media"} ${average.toFixed(2)}`);
+      if (allocation?.target > 0) {
+        parts.push(`investito ${formatMoney(allocation.invested)}/${formatMoney(allocation.target)}`);
+        if (allocation.cash > 0) parts.push(`residuo ${formatMoney(allocation.cash)}`);
+        if (allocation.unpriced > 0) parts.push(`${allocation.unpriced} senza prezzo`);
+      }
+      const industries = countBy(rows, industryValue).size;
+      parts.push(`cap settore ${state.sectorCapPercent}% max ${diagnostics.sectorLimit}`);
+      parts.push(`cap paese ${state.countryCapPercent}% max ${diagnostics.countryLimit}`);
+      parts.push(`industrie ${industries}`);
+      if (diagnostics.marketCapFilterActive) parts.push(`mcap ${marketCapFilterLabel()}`);
+      if (diagnostics.scoreQualityFilterActive) parts.push(`qualità ${scoreQualityFilterLabel()}`);
+      if (rows.length < targetCount) parts.push("Vincoli troppo stretti");
+      else parts.push("Vincoli ok");
+      return parts.join(" - ");
+    }
+
+    function exportBasketRows() {
+      const rows = basketRows();
+      if (!state.headers.length || rows.length === 0) return;
+      const extraHeaders = [
+        "basket_shares",
+        "basket_currency",
+        "basket_price",
+        "basket_price_eur",
+        "basket_value_eur",
+      ];
+      const lines = [[...state.headers, ...extraHeaders].map(csvEscape).join(",")];
+      rows.forEach((row) => {
+        const position = ensureBasketPosition(row);
+        const currency = rowCurrency(row);
+        const extraCells = [position.shares, currency, position.price, euroPrice(row), basketValue(row)];
+        lines.push([...row.cells, ...extraCells].map(csvEscape).join(","));
+      });
+      const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = (state.sourceName || "output").split(/[\\/]/).pop().replace(/\.csv$/i, "");
+      link.href = url;
+      link.download = `${baseName}_basket.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function currentAutofillConfig() {
+      return {
+        type: "stockmix_lab_autofill_config",
+        version: 1,
+        savedAt: new Date().toISOString(),
+        sourceName: state.sourceName,
+        settings: {
+          targetCount: Math.max(1, Math.floor(Number(elements.basketTargetCount.value) || 1)),
+          scoreColumn: state.basketScoreColumn,
+          portfolioValue: portfolioTargetValue(),
+          sectorCapPercent: state.sectorCapPercent,
+          countryCapPercent: state.countryCapPercent,
+          marketCapMin: marketCapFilterBounds().min,
+          marketCapMax: marketCapFilterBounds().max,
+          completenessMin: scoreQualityFilterBounds().completenessMin,
+          indicatorScoreMin: scoreQualityFilterBounds().indicatorScoreMin,
+          indicatorExceptionMax: scoreQualityFilterBounds().indicatorExceptionMax,
+        },
+      };
+    }
+
+    function exportAutofillConfig() {
+      const config = currentAutofillConfig();
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = (state.sourceName || "stockmix").split(/[\\/]/).pop().replace(/\.csv$/i, "");
+      link.href = url;
+      link.download = `${baseName}_autofill_config.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      state.autofillMessage = "Configurazione autofill esportata";
+      renderBasket();
+    }
+
+    function applyAutofillConfig(config) {
+      const settings = config?.settings || config;
+      if (!settings || typeof settings !== "object") {
+        throw new Error("File configurazione non valido");
+      }
+
+      const targetCount = Math.max(1, Math.floor(Number(settings.targetCount) || 1));
+      elements.basketTargetCount.value = targetCount;
+
+      if (settings.scoreColumn && state.headers.includes(settings.scoreColumn)) {
+        state.basketScoreColumn = settings.scoreColumn;
+        elements.basketScoreColumn.value = settings.scoreColumn;
+      }
+
+      elements.basketPortfolioValue.value = Number(settings.portfolioValue) > 0
+        ? String(Number(settings.portfolioValue))
+        : "";
+      state.sectorCapPercent = clampPercent(settings.sectorCapPercent, state.sectorCapPercent);
+      state.countryCapPercent = clampPercent(settings.countryCapPercent, state.countryCapPercent);
+      elements.autofillMarketCapMin.value = Number(settings.marketCapMin) > 0
+        ? String(Number(settings.marketCapMin))
+        : "";
+      elements.autofillMarketCapMax.value = Number(settings.marketCapMax) > 0
+        ? String(Number(settings.marketCapMax))
+        : "";
+      elements.autofillCompletenessMin.value = Number(settings.completenessMin) > 0
+        ? String(Number(settings.completenessMin))
+        : "";
+      elements.autofillIndicatorScoreMin.value = Number(settings.indicatorScoreMin) > 0
+        ? String(Number(settings.indicatorScoreMin))
+        : "";
+      elements.autofillIndicatorExceptionMax.value = Number(settings.indicatorExceptionMax) > 0
+        ? String(Math.floor(Number(settings.indicatorExceptionMax)))
+        : "0";
+
+      state.autofillMessage = "Configurazione autofill importata";
+      renderBasket();
+    }
+
+    async function importAutofillConfigFile(file) {
+      if (!file) return;
+      try {
+        const config = JSON.parse(await file.text());
+        applyAutofillConfig(config);
+      } catch (error) {
+        state.autofillMessage = `Import config fallito: ${error.message}`;
+        renderBasket();
+      } finally {
+        elements.importAutofillConfigFile.value = "";
+      }
+    }
+
+    function renderTable() {
+      if (!state.headers.length) {
+        elements.tableWrap.innerHTML = '<div class="empty-state">Carica un CSV</div>';
+        return;
+      }
+
+      const visibleIndexes = getVisibleIndexes();
+      if (visibleIndexes.length === 0) {
+        elements.tableWrap.innerHTML = '<div class="empty-state">Nessuna colonna visibile</div>';
+        return;
+      }
+
+      const pageRows = getPageRows();
+      if (pageRows.length === 0) {
+        elements.tableWrap.innerHTML = '<div class="empty-state">Nessuna riga trovata</div>';
+        return;
+      }
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      visibleIndexes.forEach(({ header, index }) => {
+        const th = document.createElement("th");
+        th.dataset.columnName = header;
+        th.style.minWidth = `${columnWidthFor(header)}px`;
+        th.style.maxWidth = "420px";
+
+        const headerCell = document.createElement("div");
+        headerCell.className = "header-cell";
+
+        const button = document.createElement("button");
+        button.className = "sort-button";
+        button.type = "button";
+        button.title = `Ordina per ${header}`;
+        button.innerHTML = `<span class="header-label">${escapeHtml(header)}</span><span class="sort-token">${sortToken(header)}</span>`;
+        button.addEventListener("click", () => toggleSort(header));
+
+        const pinButton = document.createElement("button");
+        pinButton.className = `pin-button${state.frozenColumns.has(header) ? " is-active" : ""}`;
+        pinButton.type = "button";
+        pinButton.title = state.frozenColumns.has(header) ? "Sblocca colonna" : "Blocca colonna";
+        pinButton.setAttribute("aria-label", pinButton.title);
+        pinButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17v5"></path><path d="M5 17h14"></path><path d="m15 3 6 6-4 4 .5 3.5-10-10 3.5.5 4-4Z"></path></svg>';
+        pinButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleFrozenColumn(header);
+        });
+
+        headerCell.appendChild(button);
+        headerCell.appendChild(pinButton);
+        th.appendChild(headerCell);
+        if (state.columnMeta[index]?.isNumeric) th.classList.add("numeric");
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      pageRows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.dataset.rowId = String(row.id);
+        if (row.id === state.selectedRowId) tr.classList.add("selected");
+        if (state.basketIds.has(row.id)) tr.classList.add("in-basket");
+        tr.addEventListener("click", () => {
+          state.selectedRowId = row.id;
+          renderTable();
+          renderDetail();
+        });
+        tr.addEventListener("dblclick", () => {
+          state.basketIds.add(row.id);
+          state.autofillMessage = "Riga aggiunta";
+          renderAll();
+        });
+
+        visibleIndexes.forEach(({ header, index }) => {
+          const td = document.createElement("td");
+          td.dataset.columnName = header;
+          td.style.minWidth = `${columnWidthFor(header)}px`;
+          td.style.maxWidth = "420px";
+          const value = row.cells[index] ?? "";
+          const text = String(value);
+          const meta = state.columnMeta[index];
+          if (meta?.isNumeric) td.classList.add("numeric");
+          if (!text.trim()) td.classList.add("empty");
+          td.title = text;
+
+          if (isScoreColumn(header, meta, text)) {
+            const number = parseNumber(text);
+            const width = Math.max(0, Math.min(100, (number / 10) * 100));
+            td.innerHTML = `
+              <div class="score-cell">
+                <span>${escapeHtml(formatCell(text, meta))}</span>
+                <span class="score-bar" aria-hidden="true"><span style="--score-width: ${width}%"></span></span>
+              </div>
+            `;
+          } else {
+            td.textContent = text.trim() ? formatCell(text, meta) : "";
+          }
+
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      elements.tableWrap.innerHTML = "";
+      elements.tableWrap.appendChild(table);
+      applyStickyColumns(table, visibleIndexes);
+    }
+
+    function columnWidthFor(header) {
+      return Math.min(360, Math.max(150, header.length * 8 + 56));
+    }
+
+    function applyStickyColumns(table, visibleIndexes) {
+      let left = 0;
+      visibleIndexes.forEach(({ header }, visiblePosition) => {
+        if (!state.frozenColumns.has(header)) return;
+        const columnPosition = visiblePosition + 1;
+        const headerCell = table.querySelector(`thead th:nth-child(${columnPosition})`);
+        const cells = table.querySelectorAll(`tr > :nth-child(${columnPosition})`);
+        cells.forEach((cell) => {
+          cell.classList.add("sticky-column");
+          cell.style.setProperty("--sticky-left", `${left}px`);
+        });
+        left += headerCell?.offsetWidth || 120;
+      });
+    }
+
+    function isScoreColumn(header, meta, value) {
+      if (!meta?.isNumeric) return false;
+      if (!(header === "fitness_score" || header.endsWith("_score"))) return false;
+      const number = parseNumber(value);
+      return number !== null && number >= 0 && number <= 10;
+    }
+
+    function formatCell(value, meta) {
+      if (!meta?.isNumeric) return value;
+      const number = parseNumber(value);
+      if (number === null) return value;
+      if (Math.abs(number) >= 1000) return number.toLocaleString("it-IT", { maximumFractionDigits: 2 });
+      return number.toLocaleString("it-IT", { maximumFractionDigits: 4 });
+    }
+
+    function sortToken(header) {
+      if (state.sort.column !== header) return "";
+      return state.sort.direction === "asc" ? "ASC" : "DESC";
+    }
+
+    function toggleSort(header) {
+      if (state.sort.column !== header) {
+        state.sort = { column: header, direction: "asc" };
+      } else if (state.sort.direction === "asc") {
+        state.sort.direction = "desc";
+      } else {
+        state.sort = { column: "", direction: "asc" };
+      }
+      elements.sortColumn.value = state.sort.column;
+      elements.sortDirection.value = state.sort.direction;
+      state.page = 1;
+      applyAndRender();
+    }
+
+    function renderDetail() {
+      const row = state.rows.find((item) => item.id === state.selectedRowId);
+      if (!row) {
+        elements.detailSummary.textContent = "-";
+        elements.detailBody.innerHTML = '<div class="empty-state">Seleziona una riga</div>';
+        return;
+      }
+
+      elements.detailSummary.textContent = `Riga ${row.id}`;
+      const detail = document.createElement("div");
+      detail.className = "detail-grid";
+      state.headers.forEach((header, index) => {
+        const value = row.cells[index] ?? "";
+        const item = document.createElement("div");
+        item.className = "detail-row";
+        item.innerHTML = `<strong>${escapeHtml(header)}</strong><span>${escapeHtml(value)}</span>`;
+        detail.appendChild(item);
+      });
+      elements.detailBody.innerHTML = "";
+      elements.detailBody.appendChild(detail);
+    }
+
+    function renderPager() {
+      const maxPage = getMaxPage();
+      const visibleRows = getPageRows().length;
+      elements.pageInfo.textContent = `Pagina ${state.page} di ${maxPage} - ${visibleRows} righe in vista`;
+      elements.firstPage.disabled = state.page <= 1;
+      elements.prevPage.disabled = state.page <= 1;
+      elements.nextPage.disabled = state.page >= maxPage;
+      elements.lastPage.disabled = state.page >= maxPage;
+    }
+
+    function exportFilteredRows() {
+      if (!state.headers.length) return;
+      const lines = [state.headers.map(csvEscape).join(",")];
+      state.filteredRows.forEach((row) => {
+        lines.push(row.cells.map(csvEscape).join(","));
+      });
+      const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = (state.sourceName || "output").split(/[\\/]/).pop().replace(/\.csv$/i, "");
+      link.href = url;
+      link.download = `${baseName}_filtrato.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      if (/[",\r\n]/.test(text)) {
+        return `"${text.replaceAll('"', '""')}"`;
+      }
+      return text;
+    }
+
+    elements.serverFileSelect.addEventListener("change", async () => {
+      try {
+        await loadServerFile(elements.serverFileSelect.value);
+      } catch (error) {
+        elements.tableWrap.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+      }
+    });
+
+    elements.reloadButton.addEventListener("click", async () => {
+      try {
+        if (elements.serverFileSelect.value) {
+          await loadServerFile(elements.serverFileSelect.value);
+        } else {
+          await fetchServerFiles();
+        }
+      } catch (error) {
+        elements.tableWrap.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+      }
+    });
+
+    elements.fileInput.addEventListener("change", async () => {
+      const file = elements.fileInput.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      loadCsvText(text, file.name, file.size);
+    });
+
+    elements.exportButton.addEventListener("click", exportFilteredRows);
+    elements.basketScoreColumn.addEventListener("change", () => {
+      state.basketScoreColumn = elements.basketScoreColumn.value;
+      state.autofillMessage = "Colonna voto aggiornata";
+      renderBasket();
+    });
+    elements.basketPortfolioValue.addEventListener("change", () => {
+      state.autofillMessage = "Capitale aggiornato";
+      renderBasket();
+    });
+    elements.refreshFxRates.addEventListener("click", () => {
+      void loadFxRates(true);
+    });
+    elements.addSelectedToBasket.addEventListener("click", addSelectedRowToBasket);
+    elements.autofillBasket.addEventListener("click", autofillBasket);
+    elements.marketCapWeightBasket.addEventListener("click", () => {
+      void weightBasketByMarketCap();
+    });
+    elements.scoreWeightBasket.addEventListener("click", () => {
+      void weightBasketByScore();
+    });
+    elements.exportBasket.addEventListener("click", exportBasketRows);
+    elements.exportAutofillConfig.addEventListener("click", exportAutofillConfig);
+    elements.importAutofillConfig.addEventListener("click", () => {
+      elements.importAutofillConfigFile.click();
+    });
+    elements.importAutofillConfigFile.addEventListener("change", () => {
+      void importAutofillConfigFile(elements.importAutofillConfigFile.files?.[0]);
+    });
+    elements.clearBasket.addEventListener("click", clearBasket);
+    elements.toggleBasket.addEventListener("click", toggleBasketCollapsed);
+    elements.sectorCapSlider.addEventListener("input", () => updateAutofillCap("sector", elements.sectorCapSlider.value));
+    elements.sectorCapNumber.addEventListener("change", () => updateAutofillCap("sector", elements.sectorCapNumber.value));
+    elements.countryCapSlider.addEventListener("input", () => updateAutofillCap("country", elements.countryCapSlider.value));
+    elements.countryCapNumber.addEventListener("change", () => updateAutofillCap("country", elements.countryCapNumber.value));
+    elements.autofillMarketCapMin.addEventListener("change", updateMarketCapFilter);
+    elements.autofillMarketCapMax.addEventListener("change", updateMarketCapFilter);
+    elements.autofillCompletenessMin.addEventListener("change", updateScoreQualityFilter);
+    elements.autofillIndicatorScoreMin.addEventListener("change", updateScoreQualityFilter);
+    elements.autofillIndicatorExceptionMax.addEventListener("change", updateScoreQualityFilter);
+    elements.scrollTableLeft.addEventListener("click", () => scrollTableHorizontally(-1));
+    elements.scrollTableRight.addEventListener("click", () => scrollTableHorizontally(1));
+    elements.globalSearch.addEventListener("input", () => {
+      state.globalSearch = elements.globalSearch.value;
+      state.page = 1;
+      applyAndRender();
+    });
+    elements.filterOperator.addEventListener("change", updateFilterInputs);
+    elements.addFilterButton.addEventListener("click", addFilter);
+    elements.clearFiltersButton.addEventListener("click", clearFilters);
+    elements.applySortButton.addEventListener("click", () => {
+      state.sort = {
+        column: elements.sortColumn.value,
+        direction: elements.sortDirection.value,
+      };
+      state.page = 1;
+      applyAndRender();
+    });
+    elements.columnSearch.addEventListener("input", renderColumnList);
+    elements.showAllColumns.addEventListener("click", () => setColumns("all"));
+    elements.showBaseColumns.addEventListener("click", () => setColumns("base"));
+    elements.showScoreColumns.addEventListener("click", () => setColumns("score"));
+    elements.pageSize.addEventListener("change", () => {
+      state.pageSize = elements.pageSize.value === "all" ? "all" : Number(elements.pageSize.value);
+      state.page = 1;
+      renderAll();
+    });
+    elements.firstPage.addEventListener("click", () => {
+      state.page = 1;
+      renderAll();
+    });
+    elements.prevPage.addEventListener("click", () => {
+      state.page = Math.max(1, state.page - 1);
+      renderAll();
+    });
+    elements.nextPage.addEventListener("click", () => {
+      state.page = Math.min(getMaxPage(), state.page + 1);
+      renderAll();
+    });
+    elements.lastPage.addEventListener("click", () => {
+      state.page = getMaxPage();
+      renderAll();
+    });
+
+    fetchServerFiles();
+  </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+{
+  "industries": [
+    "Insurance - Property & Casualty",
+    "Insurance - Diversified",
+    "Insurance - Life",
+    "Insurance Brokers",
+    "Insurance - Specialty",
+    "Insurance - Reinsurance"
+  ],
+  "scores": [
+    {
+      "field": "roe_pct",
+      "weight": 1.7,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 0 ],
+        [ 8, 5 ],
+        [ 13, 8 ],
+        [ 20, 10 ],
+        [ 35, 9 ]
+      ],
+      "penalty": 0.2
+    },
+    {
+      "field": "roic_pct",
+      "weight": 1.3,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 0 ],
+        [ 8, 5 ],
+        [ 15, 8 ],
+        [ 25, 10 ],
+        [ 45, 9 ]
+      ],
+      "penalty": 0.2
+    },
+    {
+      "field": "roa_pct",
+      "weight": 1.1,
+      "prefactor": 1,
+      "points": [
+        [ -10, 0 ],
+        [ 0, 0 ],
+        [ 1, 4 ],
+        [ 3, 7 ],
+        [ 6, 10 ],
+        [ 10, 10 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "operating_margin_pct",
+      "weight": 0.9,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 0 ],
+        [ 8, 4 ],
+        [ 18, 7 ],
+        [ 30, 10 ],
+        [ 50, 10 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "net_margin_pct",
+      "weight": 0.7,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 0 ],
+        [ 5, 4 ],
+        [ 12, 7 ],
+        [ 20, 10 ],
+        [ 35, 10 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "interest_coverage",
+      "weight": 0.9,
+      "prefactor": 1,
+      "points": [
+        [ -10, 0 ],
+        [ 0, 0 ],
+        [ 3, 4 ],
+        [ 10, 8 ],
+        [ 25, 10 ],
+        [ 60, 10 ]
+      ],
+      "penalty": 0.2
+    },
+    {
+      "field": "net_debt_to_ebitda",
+      "weight": 0.7,
+      "prefactor": 1,
+      "points": [
+        [ -10, 8 ],
+        [ 0, 10 ],
+        [ 1, 8 ],
+        [ 3, 5 ],
+        [ 5, 2 ],
+        [ 8, 0 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "debt_to_equity_ratio",
+      "weight": 0.5,
+      "prefactor": 1,
+      "points": [
+        [ -1, 0 ],
+        [ -0.01, 0 ],
+        [ 0, 10 ],
+        [ 0.5, 8 ],
+        [ 1.5, 4 ],
+        [ 3, 1 ],
+        [ 5, 0 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "price_to_book",
+      "weight": 1.6,
+      "prefactor": 1,
+      "points": [
+        [ 0, 0 ],
+        [ 0.5, 5 ],
+        [ 0.9, 9 ],
+        [ 1.4, 10 ],
+        [ 2.2, 8 ],
+        [ 4, 4 ],
+        [ 7, 0 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "pe_forward",
+      "weight": 1.2,
+      "prefactor": 1,
+      "points": [
+        [ -20, 0 ],
+        [ 0, 0 ],
+        [ 5, 7 ],
+        [ 8, 10 ],
+        [ 12, 9 ],
+        [ 18, 5 ],
+        [ 28, 0 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "pe_ttm",
+      "weight": 0.8,
+      "prefactor": 1,
+      "points": [
+        [ -20, 0 ],
+        [ 0, 0 ],
+        [ 6, 8 ],
+        [ 10, 10 ],
+        [ 15, 8 ],
+        [ 24, 4 ],
+        [ 35, 0 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "ev_to_ebitda",
+      "weight": 0.6,
+      "prefactor": 1,
+      "points": [
+        [ -20, 0 ],
+        [ 0, 0 ],
+        [ 4, 8 ],
+        [ 7, 10 ],
+        [ 11, 8 ],
+        [ 16, 4 ],
+        [ 30, 0 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "peg_ratio",
+      "weight": 0.5,
+      "prefactor": 1,
+      "points": [
+        [ -1, 0 ],
+        [ 0, 0 ],
+        [ 0.5, 10 ],
+        [ 1, 9 ],
+        [ 1.5, 7 ],
+        [ 2.5, 3 ],
+        [ 5, 0 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "fcf_yield_pct",
+      "weight": 1,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 0 ],
+        [ 4, 5 ],
+        [ 10, 8 ],
+        [ 20, 10 ],
+        [ 40, 8 ]
+      ],
+      "penalty": 0.15
+    },
+    {
+      "field": "revenue_growth_pct",
+      "weight": 0.7,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 3 ],
+        [ 5, 6 ],
+        [ 12, 8 ],
+        [ 25, 10 ],
+        [ 60, 9 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "earnings_growth_pct",
+      "weight": 0.7,
+      "prefactor": 1,
+      "points": [
+        [ -50, 0 ],
+        [ 0, 2 ],
+        [ 5, 5 ],
+        [ 15, 8 ],
+        [ 35, 10 ],
+        [ 100, 9 ]
+      ],
+      "penalty": 0.1
+    },
+    {
+      "field": "dividend_yield_pct",
+      "weight": 0.4,
+      "prefactor": 1,
+      "points": [
+        [ 0, 1 ],
+        [ 2, 5 ],
+        [ 4, 9 ],
+        [ 7, 10 ],
+        [ 12, 4 ],
+        [ 20, 0 ]
+      ],
+      "penalty": 0.05
+    },
+    {
+      "field": "payout_ratio_pct",
+      "weight": 0.4,
+      "prefactor": 1,
+      "points": [
+        [ -100, 0 ],
+        [ 0, 3 ],
+        [ 25, 8 ],
+        [ 45, 10 ],
+        [ 70, 7 ],
+        [ 100, 2 ],
+        [ 150, 0 ]
+      ],
+      "penalty": 0.05
+    }
+  ]
+}
