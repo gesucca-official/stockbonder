@@ -1,0 +1,537 @@
+[
+  {
+    "id": "US",
+    "name": "Stati Uniti",
+    "currency": "USD",
+    "instrument": "Treasury",
+    "color": "#19775c",
+    "source": "U.S. Treasury",
+    "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+    "method": "Curva alla pari semestrale, convertita in rendimento annuo equivalente. Duration su un titolo teorico a cedola annuale.",
+    "frequency": "Giornaliera",
+    "date": "2026-10-06",
+    "points": [
+      {
+        "maturity": 1,
+        "yield": 4.509728999999996,
+        "nativeYield": 4.46
+      },
+      {
+        "maturity": 2,
+        "yield": 4.847360249999988,
+        "nativeYield": 4.79
+      },
+      {
+        "maturity": 3,
+        "yield": 4.939535999999989,
+        "nativeYield": 4.88
+      },
+      {
+        "maturity": 5,
+        "yield": 5.093252249999991,
+        "nativeYield": 5.03
+      },
+      {
+        "maturity": 7,
+        "yield": 5.21630624999998,
+        "nativeYield": 5.15
+      },
+      {
+        "maturity": 10,
+        "yield": 5.33943225000002,
+        "nativeYield": 5.27
+      },
+      {
+        "maturity": 20,
+        "yield": 5.760655999999997,
+        "nativeYield": 5.68
+      },
+      {
+        "maturity": 30,
+        "yield": 5.719523999999998,
+        "nativeYield": 5.64
+      }
+    ],
+    "retrievedAt": "2026-10-07T11:07:01.625Z"
+  },
+  {
+    "id": "DE",
+    "name": "Germania",
+    "currency": "EUR",
+    "instrument": "Bund",
+    "color": "#aa7733",
+    "source": "Deutsche Bundesbank",
+    "sourceUrl": "https://www.bundesbank.de/en/statistics/money-and-capital-markets/interest-rates-and-yields/daily-term-structure-on-listed-federal-securities-651570",
+    "method": "Rendimenti alla pari a cedola annuale (serie ZAR), derivati dalla curva Svensson. Copertura 1–10 anni.",
+    "frequency": "Giornaliera",
+    "date": "2026-10-06",
+    "points": [
+      {
+        "maturity": 1,
+        "yield": 2.93,
+        "nativeYield": 2.93
+      },
+      {
+        "maturity": 2,
+        "yield": 3.08,
+        "nativeYield": 3.08
+      },
+      {
+        "maturity": 3,
+        "yield": 3.12,
+        "nativeYield": 3.12
+      },
+      {
+        "maturity": 4,
+        "yield": 3.16,
+        "nativeYield": 3.16
+      },
+      {
+        "maturity": 5,
+        "yield": 3.21,
+        "nativeYield": 3.21
+      },
+      {
+        "maturity": 6,
+        "yield": 3.26,
+        "nativeYield": 3.26
+      },
+      {
+        "maturity": 7,
+        "yield": 3.32,
+        "nativeYield": 3.32
+      },
+      {
+        "maturity": 8,
+        "yield": 3.38,
+        "nativeYield": 3.38
+      },
+      {
+        "maturity": 9,
+        "yield": 3.44,
+        "nativeYield": 3.44
+      },
+      {
+        "maturity": 10,
+        "yield": 3.49,
+        "nativeYield": 3.49
+      }
+    ],
+    "retrievedAt": "2026-10-07T11:07:01.661Z"
+  },
+  {
+    "id": "GB",
+    "name": "Regno Unito",
+    "currency": "GBP",
+    "instrument": "Gilt",
+    "color": "#756ab0",
+    "source": "Bank of England",
+    "sourceUrl": "https://www.bankofengland.co.uk/statistics/yield-curves",
+    "method": "Tassi spot a capitalizzazione continua trasformati in rendimenti alla pari con cedole annuali, usando i fattori di sconto di ogni anno.",
+    "frequency": "Giornaliera, pubblicata il giorno lavorativo successivo",
+    "date": "2026-10-05",
+    "points": [
+      {
+        "maturity": 1,
+        "yield": 4.503737234387839,
+        "nativeYield": 4.405264778578928
+      },
+      {
+        "maturity": 2,
+        "yield": 4.740920901191193,
+        "nativeYield": 4.637349839872814
+      },
+      {
+        "maturity": 3,
+        "yield": 4.8623808364903915,
+        "nativeYield": 4.757285126957658
+      },
+      {
+        "maturity": 4,
+        "yield": 4.952970390722435,
+        "nativeYield": 4.848071337715788
+      },
+      {
+        "maturity": 5,
+        "yield": 5.039953956339654,
+        "nativeYield": 4.937176634946794
+      },
+      {
+        "maturity": 6,
+        "yield": 5.1295184621674625,
+        "nativeYield": 5.03116647582396
+      },
+      {
+        "maturity": 7,
+        "yield": 5.220521920035712,
+        "nativeYield": 5.128992831596816
+      },
+      {
+        "maturity": 8,
+        "yield": 5.310362503198447,
+        "nativeYield": 5.227902385025752
+      },
+      {
+        "maturity": 9,
+        "yield": 5.3967449563599335,
+        "nativeYield": 5.325294850681848
+      },
+      {
+        "maturity": 10,
+        "yield": 5.477990370490112,
+        "nativeYield": 5.41908883492175
+      },
+      {
+        "maturity": 11,
+        "yield": 5.5530149680935015,
+        "nativeYield": 5.507745070310569
+      },
+      {
+        "maturity": 12,
+        "yield": 5.621218115540708,
+        "nativeYield": 5.590187395076466
+      },
+      {
+        "maturity": 13,
+        "yield": 5.682344227973573,
+        "nativeYield": 5.66568129726754
+      },
+      {
+        "maturity": 14,
+        "yield": 5.736400444013903,
+        "nativeYield": 5.733773912535682
+      },
+      {
+        "maturity": 15,
+        "yield": 5.783615622509545,
+        "nativeYield": 5.794285135537622
+      },
+      {
+        "maturity": 16,
+        "yield": 5.824387830677666,
+        "nativeYield": 5.847276938914611
+      },
+      {
+        "maturity": 17,
+        "yield": 5.859217885959642,
+        "nativeYield": 5.892990259771634
+      },
+      {
+        "maturity": 18,
+        "yield": 5.888672083930191,
+        "nativeYield": 5.931814910240465
+      },
+      {
+        "maturity": 19,
+        "yield": 5.913352581782094,
+        "nativeYield": 5.964262943577132
+      },
+      {
+        "maturity": 20,
+        "yield": 5.93384687836767,
+        "nativeYield": 5.990894467241359
+      },
+      {
+        "maturity": 21,
+        "yield": 5.950684071301012,
+        "nativeYield": 6.012239303348802
+      },
+      {
+        "maturity": 22,
+        "yield": 5.964314872741945,
+        "nativeYield": 6.028749789908731
+      },
+      {
+        "maturity": 23,
+        "yield": 5.975106917459774,
+        "nativeYield": 6.040776493814219
+      },
+      {
+        "maturity": 24,
+        "yield": 5.9833515873310965,
+        "nativeYield": 6.048565207163137
+      },
+      {
+        "maturity": 25,
+        "yield": 5.989273810619547,
+        "nativeYield": 6.052261524265862
+      },
+      {
+        "maturity": 26,
+        "yield": 5.993046672960662,
+        "nativeYield": 6.0519290448105485
+      },
+      {
+        "maturity": 27,
+        "yield": 5.994807970688369,
+        "nativeYield": 6.047577039493363
+      },
+      {
+        "maturity": 28,
+        "yield": 5.9946764170049915,
+        "nativeYield": 6.039193257267143
+      },
+      {
+        "maturity": 29,
+        "yield": 5.9927622258037445,
+        "nativeYield": 6.026768414817108
+      },
+      {
+        "maturity": 30,
+        "yield": 5.989172930139846,
+        "nativeYield": 6.010312046771294
+      }
+    ],
+    "retrievedAt": "2026-10-07T11:07:01.662Z"
+  },
+  {
+    "id": "JP",
+    "name": "Giappone",
+    "currency": "JPY",
+    "instrument": "JGB",
+    "color": "#c66c57",
+    "source": "Ministry of Finance Japan",
+    "sourceUrl": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/index.htm",
+    "method": "Rendimenti benchmark a scadenza costante, capitalizzazione semestrale, convertiti in rendimento annuo equivalente. Duration su un titolo teorico a cedola annuale.",
+    "frequency": "Giornaliera, pubblicata il giorno lavorativo successivo",
+    "date": "2026-10-06",
+    "points": [
+      {
+        "maturity": 1,
+        "yield": 1.6588227599999783,
+        "nativeYield": 1.652
+      },
+      {
+        "maturity": 2,
+        "yield": 1.9393122499999915,
+        "nativeYield": 1.93
+      },
+      {
+        "maturity": 3,
+        "yield": 2.0877848225000273,
+        "nativeYield": 2.077
+      },
+      {
+        "maturity": 4,
+        "yield": 2.2899618224999863,
+        "nativeYield": 2.277
+      },
+      {
+        "maturity": 5,
+        "yield": 2.4326168099999768,
+        "nativeYield": 2.418
+      },
+      {
+        "maturity": 6,
+        "yield": 2.564230759999986,
+        "nativeYield": 2.548
+      },
+      {
+        "maturity": 7,
+        "yield": 2.694915822499988,
+        "nativeYield": 2.677
+      },
+      {
+        "maturity": 8,
+        "yield": 2.8550930625000026,
+        "nativeYield": 2.835
+      },
+      {
+        "maturity": 9,
+        "yield": 2.9879928899999797,
+        "nativeYield": 2.966
+      },
+      {
+        "maturity": 10,
+        "yield": 3.12707152249998,
+        "nativeYield": 3.103
+      },
+      {
+        "maturity": 15,
+        "yield": 3.6751604100000224,
+        "nativeYield": 3.642
+      },
+      {
+        "maturity": 20,
+        "yield": 3.9849272899999955,
+        "nativeYield": 3.946
+      },
+      {
+        "maturity": 25,
+        "yield": 4.238995062499984,
+        "nativeYield": 4.195
+      },
+      {
+        "maturity": 30,
+        "yield": 4.211430559999996,
+        "nativeYield": 4.168
+      }
+    ],
+    "retrievedAt": "2026-10-07T11:07:01.663Z"
+  },
+  {
+    "id": "CA",
+    "name": "Canada",
+    "currency": "CAD",
+    "instrument": "Government bonds",
+    "color": "#4283a5",
+    "source": "Bank of Canada",
+    "sourceUrl": "https://www.bankofcanada.ca/rates/interest-rates/bond-yield-curves/",
+    "method": "Tassi zero coupon a capitalizzazione continua trasformati in rendimenti alla pari con cedole annuali, usando i fattori di sconto di ogni anno.",
+    "frequency": "Settimanale, con ritardo di circa due settimane",
+    "date": "2026-09-16",
+    "points": [
+      {
+        "maturity": 1,
+        "yield": 2.991739500380651,
+        "nativeYield": 2.94786
+      },
+      {
+        "maturity": 2,
+        "yield": 3.390019465337966,
+        "nativeYield": 3.3403799999999997
+      },
+      {
+        "maturity": 3,
+        "yield": 3.5297850833846973,
+        "nativeYield": 3.4783099999999996
+      },
+      {
+        "maturity": 4,
+        "yield": 3.6051185550894713,
+        "nativeYield": 3.5528999999999997
+      },
+      {
+        "maturity": 5,
+        "yield": 3.6652375629601255,
+        "nativeYield": 3.61325
+      },
+      {
+        "maturity": 6,
+        "yield": 3.726514533452865,
+        "nativeYield": 3.6761000000000004
+      },
+      {
+        "maturity": 7,
+        "yield": 3.790882290293356,
+        "nativeYield": 3.7435099999999997
+      },
+      {
+        "maturity": 8,
+        "yield": 3.8551977698847755,
+        "nativeYield": 3.8121099999999997
+      },
+      {
+        "maturity": 9,
+        "yield": 3.915663777119981,
+        "nativeYield": 3.87763
+      },
+      {
+        "maturity": 10,
+        "yield": 3.969511776130043,
+        "nativeYield": 3.9367399999999995
+      },
+      {
+        "maturity": 11,
+        "yield": 4.015397635831012,
+        "nativeYield": 3.98759
+      },
+      {
+        "maturity": 12,
+        "yield": 4.053208543238942,
+        "nativeYield": 4.029710000000001
+      },
+      {
+        "maturity": 13,
+        "yield": 4.083685980645025,
+        "nativeYield": 4.06367
+      },
+      {
+        "maturity": 14,
+        "yield": 4.108045731542807,
+        "nativeYield": 4.09069
+      },
+      {
+        "maturity": 15,
+        "yield": 4.127660741125108,
+        "nativeYield": 4.11228
+      },
+      {
+        "maturity": 16,
+        "yield": 4.143844529479161,
+        "nativeYield": 4.12997
+      },
+      {
+        "maturity": 17,
+        "yield": 4.157729774941391,
+        "nativeYield": 4.14514
+      },
+      {
+        "maturity": 18,
+        "yield": 4.170195075766085,
+        "nativeYield": 4.1589
+      },
+      {
+        "maturity": 19,
+        "yield": 4.18188226505398,
+        "nativeYield": 4.17209
+      },
+      {
+        "maturity": 20,
+        "yield": 4.193166319825346,
+        "nativeYield": 4.1852100000000005
+      },
+      {
+        "maturity": 21,
+        "yield": 4.204247318988483,
+        "nativeYield": 4.19853
+      },
+      {
+        "maturity": 22,
+        "yield": 4.215177117870886,
+        "nativeYield": 4.21211
+      },
+      {
+        "maturity": 23,
+        "yield": 4.225878406823471,
+        "nativeYield": 4.22581
+      },
+      {
+        "maturity": 24,
+        "yield": 4.236223029895913,
+        "nativeYield": 4.2394
+      },
+      {
+        "maturity": 25,
+        "yield": 4.246043647896698,
+        "nativeYield": 4.25257
+      },
+      {
+        "maturity": 26,
+        "yield": 4.255167077997708,
+        "nativeYield": 4.26498
+      },
+      {
+        "maturity": 27,
+        "yield": 4.263432635646189,
+        "nativeYield": 4.27629
+      },
+      {
+        "maturity": 28,
+        "yield": 4.270702654613702,
+        "nativeYield": 4.28618
+      },
+      {
+        "maturity": 29,
+        "yield": 4.27686092644735,
+        "nativeYield": 4.2943500000000006
+      },
+      {
+        "maturity": 30,
+        "yield": 4.281846563651054,
+        "nativeYield": 4.30059
+      }
+    ],
+    "retrievedAt": "2026-10-07T11:07:01.663Z"
+  }
+]

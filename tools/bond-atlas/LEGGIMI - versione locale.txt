@@ -1,0 +1,24 @@
+BOND ATLAS SUL TUO COMPUTER
+
+1. Fai doppio clic su "Avvia Bond Atlas.cmd".
+   La dashboard si apre nel browser: http://127.0.0.1:8787
+   Il primo avvio puo richiedere qualche secondo.
+
+2. Per chiuderla, fai doppio clic su "Arresta Bond Atlas.cmd".
+   Chiudere la scheda del browser lascia attivo il servizio locale.
+   Puoi riaprire la dashboard con lo stesso comando Avvia.
+
+Non serve accedere a ChatGPT. La dashboard e raggiungibile solo da questo PC.
+Per aggiornare le quotazioni serve Internet. Le rilevazioni scaricate restano
+salvate sul computer e vengono riutilizzate se la fonte non risponde.
+Le date restano visibili; dopo quattro giorni senza nuovi dati la selezione
+dei singoli titoli non propone candidati con quotazioni vecchie.
+
+La cartella tools/bond-atlas deve restare intera.
+Non spostare soltanto il file Avvia: usa eventualmente un collegamento.
+Occorre Node.js 24 o successivo. Alla prima installazione seguire il README.
+
+Le rilevazioni locali e il registro di avvio si trovano nella sottocartella
+.sites-runtime\local-app
+
+La versione online gia pubblicata rimane disponibile al suo indirizzo.

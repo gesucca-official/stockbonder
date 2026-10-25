@@ -1,0 +1,11 @@
+# Credenziali e stato locale
+.env*
+*.pem
+**/node_modules/
+**/.sites-runtime/
+**/.codex/
+**/.agents/
+**/local-dist/
+**/dist/
+*.log
+*.tsbuildinfo
